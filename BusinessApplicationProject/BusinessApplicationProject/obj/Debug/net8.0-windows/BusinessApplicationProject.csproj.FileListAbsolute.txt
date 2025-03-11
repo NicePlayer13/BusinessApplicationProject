@@ -1,0 +1,17 @@
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\bin\Debug\net8.0-windows\BusinessApplicationProject.exe
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\bin\Debug\net8.0-windows\BusinessApplicationProject.deps.json
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\bin\Debug\net8.0-windows\BusinessApplicationProject.runtimeconfig.json
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\bin\Debug\net8.0-windows\BusinessApplicationProject.dll
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\bin\Debug\net8.0-windows\BusinessApplicationProject.pdb
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.Form1.resources
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.csproj.GenerateResource.cache
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.AssemblyInfoInputs.cache
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.AssemblyInfo.cs
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.csproj.CoreCompileInputs.cache
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.sourcelink.json
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.dll
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\refint\BusinessApplicationProject.dll
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.pdb
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.genruntimeconfig.cache
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\ref\BusinessApplicationProject.dll
