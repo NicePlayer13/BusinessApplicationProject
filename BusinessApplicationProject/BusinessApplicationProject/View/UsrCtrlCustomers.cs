@@ -1,6 +1,7 @@
 ﻿using BusinessApplicationProject.Controller;
 using BusinessApplicationProject.Model;
 using BusinessApplicationProject.Repository;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace BusinessApplicationProject.View
@@ -163,110 +164,93 @@ namespace BusinessApplicationProject.View
 
         private async void CmdSaveChangesCustomer_Click(object sender, EventArgs e)
         {
-            //Throw warning
-            if (WarningUpdatedObject())
-            {
-                try
-                {
-                    var existingCustomer = customerController.FindSingle(x => x.CustomerNumber == TxtInputCustomerNumber.Text);
-
-                    if (existingCustomer != null)
-                    {
-                        existingCustomer.CustomerAddress.StreetAddress = TxtInputCustomerAdress.Text;
-                        existingCustomer.CustomerAddress.ZipCode = TxtInputCustomerPostalCode.Text;
-                        existingCustomer.CustomerAddress.City = TxtInputCustomerCity.Text;
-                        existingCustomer.CustomerAddress.Country = TxtInputCustomerCountry.Text;
-
-                        existingCustomer.FirstName = TxtInputCustomerFirstName.Text;
-                        existingCustomer.LastName = TxtInputCustomerLastName.Text;
-
-                        existingCustomer.Email = TxtInputCustomerEmail.Text;
-                       
-
-                        try
-                        {
-                            customerController.Update(existingCustomer);
-                            MessageBox.Show("Updated customer.");
-                            UpdateSearchResults();
-                        }
-                        catch (TimeoutException)
-                        {
-                            MessageBox.Show("DB connection failed. Please check connection.");
-                        }
-                        catch
-                        {
-                            MessageBox.Show("An error occurred.");
-                        }
-                    }
-                    else
-                    {
-                        var allCustomers = customerController.GetAll();
-
-                        int maxCustNumber = (allCustomers.Count > 0) ?
-                            allCustomers.Select(n => int.Parse(n.CustomerNumber.Split('-')[1]))
-                            .Max() : 0;
-
-                        string custNumber = (++maxCustNumber).ToString().PadLeft(5, '0');
-                        custNumber = "C-" + custNumber;
-
-                        var newAddress = new Address
-                        {
-                            StreetAddress = TxtInputCustomerAdress.Text,
-                            ZipCode = TxtInputCustomerPostalCode.Text,
-                            City = TxtInputCustomerCity.Text,
-                            Country = TxtInputCustomerCountry.Text
-                        };
-
-                        // Ensure the address is added to the database and gets an ID
-                        await customerController.GetContext().Set<Address>().AddAsync(newAddress);
-                        await customerController.GetContext().SaveChangesAsync(); // Save so newAddress gets an ID
-
-                        var newCustomer = new Customer
-                        {
-                            CustomerNumber = custNumber,
-                            CustomerAddressId = newAddress.Id,  // ✅ Set required CustomerAddressId
-                            CustomerAddress = newAddress,
-                            FirstName = TxtInputCustomerFirstName.Text,
-                            LastName = TxtInputCustomerLastName.Text,
-                            Email = TxtInputCustomerEmail.Text,
-                        };
-
-                        // Add the customer
-                        await customerController.AddAsync(newCustomer);
-                        MessageBox.Show("Added customer.");
-                        UpdateSearchResults();
-
-
-                        try
-                        {
-                            await customerController.AddAsync(newCustomer);
-                            MessageBox.Show("Added customer.");
-                            UpdateSearchResults();
-                        }
-                        catch (TimeoutException)
-                        {
-                            MessageBox.Show("DB connection failed. Please check connection.");
-                        }
-                        catch
-                        {
-                            MessageBox.Show("An error occurred.");
-                        }
-                    }
-                }
-                catch (TimeoutException)
-                {
-                    MessageBox.Show("DB connection failed. Please check connection.");
-                }
-                catch
-                {
-                    MessageBox.Show("An error occurred.");
-                }
-            }
-            else
+            // Throw warning
+            if (!WarningUpdatedObject())
             {
                 UpdateSearchResults();
+                return;
+            }
+
+            try
+            {
+                using var context = new AppDbContext(); // ✅ Use fresh context for tracking
+                var existingCustomer = context.Customers
+                    .Include(c => c.CustomerAddress) // ✅ Ensure CustomerAddress is loaded
+                    .FirstOrDefault(x => x.CustomerNumber == TxtInputCustomerNumber.Text);
+
+                if (existingCustomer != null) // ✅ UPDATE EXISTING CUSTOMER
+                {
+                    // ✅ Update Address (ensure changes are tracked)
+                    existingCustomer.CustomerAddress.StreetAddress = TxtInputCustomerAdress.Text;
+                    existingCustomer.CustomerAddress.ZipCode = TxtInputCustomerPostalCode.Text;
+                    existingCustomer.CustomerAddress.City = TxtInputCustomerCity.Text;
+                    existingCustomer.CustomerAddress.Country = TxtInputCustomerCountry.Text;
+               
+
+                    context.Entry(existingCustomer.CustomerAddress).State = EntityState.Modified; // ✅ Mark Address as Modified
+
+                    // ✅ Update Customer
+                    existingCustomer.FirstName = TxtInputCustomerFirstName.Text;
+                    existingCustomer.LastName = TxtInputCustomerLastName.Text;
+                    existingCustomer.Email = TxtInputCustomerEmail.Text;
+                    existingCustomer.Website = TxtInputCustomerWebsite.Text;   // ✅ Fix: Add Website
+                    context.Entry(existingCustomer).State = EntityState.Modified; // ✅ Mark Customer as Modified
+
+                    // ✅ Save Changes
+                    await context.SaveChangesAsync();
+                    MessageBox.Show("Customer updated successfully!");
+                    UpdateSearchResults();
+                }
+                else // ✅ CREATE NEW CUSTOMER
+                {
+                    var allCustomers = context.Customers.ToList();
+                    int maxCustNumber = allCustomers.Count > 0
+                        ? allCustomers.Select(n => int.Parse(n.CustomerNumber.Split('-')[1])).Max()
+                        : 0;
+
+                    string custNumber = $"C-{(++maxCustNumber):D5}"; // Format as C-00001, C-00002...
+
+                    // ✅ Create & Save New Address First
+                    var newAddress = new Address
+                    {
+                        StreetAddress = TxtInputCustomerAdress.Text,
+                        ZipCode = TxtInputCustomerPostalCode.Text,
+                        City = TxtInputCustomerCity.Text,
+                        Country = TxtInputCustomerCountry.Text
+                    };
+
+                    await context.Addresses.AddAsync(newAddress);
+                    await context.SaveChangesAsync(); // ✅ Save to generate Address ID
+
+                    // ✅ Create New Customer
+                    var newCustomer = new Customer
+                    {
+                        CustomerNumber = custNumber,
+                        CustomerAddressId = newAddress.Id,  // ✅ Use generated Address ID
+                        CustomerAddress = newAddress,
+                        FirstName = TxtInputCustomerFirstName.Text,
+                        LastName = TxtInputCustomerLastName.Text,
+                        Email = TxtInputCustomerEmail.Text
+                    };
+
+                    // ✅ Save Customer
+                    await context.Customers.AddAsync(newCustomer);
+                    await context.SaveChangesAsync();
+
+                    MessageBox.Show("New customer added successfully!");
+                    UpdateSearchResults();
+                }
+            }
+            catch (TimeoutException)
+            {
+                MessageBox.Show("DB connection failed. Please check connection.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred: " + ex.Message);
             }
         }
+
 
         private void CmdDeleteCustomer_Click(object sender, EventArgs e)
         {
@@ -371,6 +355,7 @@ namespace BusinessApplicationProject.View
                 TxtInputCustomerPostalCode.Text = customer.CustomerAddress.ZipCode;
                 TxtInputCustomerCity.Text = customer.CustomerAddress.City;
                 TxtInputCustomerCountry.Text = customer.CustomerAddress.Country;
+                TxtInputCustomerWebsite.Text = customer.Website ?? "";
             }
         }
 
