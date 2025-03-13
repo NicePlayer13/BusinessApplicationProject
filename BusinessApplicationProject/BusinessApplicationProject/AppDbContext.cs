@@ -27,16 +27,21 @@ namespace BusinessApplicationProject
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Article>()
-                .HasOne(a => a.Group)
-                .WithMany()
-                .HasForeignKey(a => a.GroupId)
-                .IsRequired(false);
+        .HasOne(a => a.Group)
+        .WithMany(g => g.Articles)
+        .HasForeignKey(a => a.GroupId)
+        .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ArticleGroup>()
-                .HasOne(a => a.Parent)
-                .WithMany()
-                .HasForeignKey(a => a.ParentId)
-                .IsRequired(false);
+        .HasMany(g => g.Articles) // ✅ One-to-Many Relationship
+        .WithOne(a => a.Group) // Each Article belongs to ONE Group
+        .HasForeignKey(a => a.GroupId)
+        .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
+            modelBuilder.Entity<ArticleGroup>()
+       .HasOne(g => g.Parent)
+       .WithMany()
+       .HasForeignKey(g => g.ParentId)
+       .IsRequired(false);
 
             modelBuilder.Entity<Customer>()
                 .HasOne(c => c.CustomerAddress)
@@ -53,14 +58,14 @@ namespace BusinessApplicationProject
                 .HasOne(i => i.BillingAddress)
                 .WithMany()
                 .HasForeignKey(i => i.BillingAddressId)
-                    .OnDelete(DeleteBehavior.Restrict); 
+                    .OnDelete(DeleteBehavior.Restrict);
 
 
             modelBuilder.Entity<Invoice>()
                 .HasOne(i => i.OrderInformations)
                 .WithMany()
                 .HasForeignKey(i => i.OrderId)
-                    .OnDelete(DeleteBehavior.Restrict); 
+                    .OnDelete(DeleteBehavior.Restrict);
 
 
             modelBuilder.Entity<Position>()

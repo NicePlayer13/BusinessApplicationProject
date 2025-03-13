@@ -13,6 +13,7 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
+
             if (disposing && (components != null))
             {
                 components.Dispose();
@@ -21,6 +22,7 @@
         }
 
         #region Windows Form Designer generated code
+        private AppDbContext _context = new AppDbContext();
 
         /// <summary>
         ///  Required method for Designer support - do not modify
@@ -128,6 +130,7 @@
             TreeViewArticles.Name = "TreeViewArticles";
             TreeViewArticles.Size = new Size(516, 450);
             TreeViewArticles.TabIndex = 2;
+            TreeViewArticles.AfterSelect += TreeViewArticles_AfterSelect;
             // 
             // GrpSearch
             // 
@@ -271,6 +274,7 @@
             button4.TabIndex = 0;
             button4.Text = "Delete Group";
             button4.UseVisualStyleBackColor = true;
+            button4.Click += button4_Click;
             // 
             // button6
             // 
@@ -280,6 +284,7 @@
             button6.TabIndex = 0;
             button6.Text = "Save as new Article Group";
             button6.UseVisualStyleBackColor = true;
+            button6.Click += button6_Click;
             // 
             // CmbInputArticleGroupParent
             // 
@@ -388,6 +393,7 @@
             button3.TabIndex = 0;
             button3.Text = "Delete Article";
             button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
             // 
             // button2
             // 
@@ -397,6 +403,7 @@
             button2.TabIndex = 0;
             button2.Text = "Save changes";
             button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
             // 
             // button1
             // 
@@ -406,6 +413,7 @@
             button1.TabIndex = 0;
             button1.Text = "Save as new Article";
             button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // CmbInputArticleGroup
             // 

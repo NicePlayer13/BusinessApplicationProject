@@ -29,16 +29,16 @@
         private void InitializeComponent()
         {
             groupBox1 = new GroupBox();
-            LblNoResults = new Label();
             label12 = new Label();
             DataGridViewBillingAddress = new DataGridView();
-            DataGridViewInvoices = new DataGridView();
             CmdCopyCustomerNumber = new Button();
             CmdCopyOrderNumber = new Button();
             DataGridViewCustomerInformations = new DataGridView();
             DataGridViewOrderDetails = new DataGridView();
-            CmdCopyArticleNumber = new Button();
             DataGridViewOrderPositions = new DataGridView();
+            LblNoResults = new Label();
+            DataGridViewInvoices = new DataGridView();
+            CmdCopyArticleNumber = new Button();
             groupBox2 = new GroupBox();
             label4 = new Label();
             label8 = new Label();
@@ -91,10 +91,10 @@
             CmdEditSave = new Button();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)DataGridViewBillingAddress).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)DataGridViewInvoices).BeginInit();
             ((System.ComponentModel.ISupportInitialize)DataGridViewCustomerInformations).BeginInit();
             ((System.ComponentModel.ISupportInitialize)DataGridViewOrderDetails).BeginInit();
             ((System.ComponentModel.ISupportInitialize)DataGridViewOrderPositions).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)DataGridViewInvoices).BeginInit();
             groupBox2.SuspendLayout();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)NumEditTaxes).BeginInit();
@@ -120,20 +120,10 @@
             groupBox1.TabStop = false;
             groupBox1.Text = "Results";
             // 
-            // LblNoResults
-            // 
-            LblNoResults.AutoSize = true;
-            LblNoResults.Location = new Point(282, 162);
-            LblNoResults.Name = "LblNoResults";
-            LblNoResults.Size = new Size(154, 15);
-            LblNoResults.TabIndex = 4;
-            LblNoResults.Text = "No items meet filter criteria.";
-            LblNoResults.Visible = false;
-            // 
             // label12
             // 
             label12.AutoSize = true;
-            label12.Location = new Point(728, 17);
+            label12.Location = new Point(7, 190);
             label12.Margin = new Padding(4, 0, 4, 0);
             label12.Name = "label12";
             label12.Size = new Size(85, 15);
@@ -145,14 +135,86 @@
             DataGridViewBillingAddress.AllowUserToDeleteRows = false;
             DataGridViewBillingAddress.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             DataGridViewBillingAddress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            DataGridViewBillingAddress.Location = new Point(728, 37);
+            DataGridViewBillingAddress.Location = new Point(9, 210);
             DataGridViewBillingAddress.Margin = new Padding(4, 5, 4, 5);
             DataGridViewBillingAddress.MultiSelect = false;
             DataGridViewBillingAddress.Name = "DataGridViewBillingAddress";
             DataGridViewBillingAddress.ReadOnly = true;
             DataGridViewBillingAddress.RowHeadersWidth = 62;
-            DataGridViewBillingAddress.Size = new Size(329, 32);
+            DataGridViewBillingAddress.Size = new Size(338, 94);
             DataGridViewBillingAddress.TabIndex = 46;
+            // 
+            // CmdCopyCustomerNumber
+            // 
+            CmdCopyCustomerNumber.Location = new Point(371, 282);
+            CmdCopyCustomerNumber.Name = "CmdCopyCustomerNumber";
+            CmdCopyCustomerNumber.Size = new Size(152, 26);
+            CmdCopyCustomerNumber.TabIndex = 6;
+            CmdCopyCustomerNumber.Text = "Copy Customer Number";
+            CmdCopyCustomerNumber.UseVisualStyleBackColor = true;
+            CmdCopyCustomerNumber.Click += CmdCopyCustomerNumber_Click;
+            // 
+            // CmdCopyOrderNumber
+            // 
+            CmdCopyOrderNumber.Location = new Point(716, 147);
+            CmdCopyOrderNumber.Name = "CmdCopyOrderNumber";
+            CmdCopyOrderNumber.Size = new Size(143, 30);
+            CmdCopyOrderNumber.TabIndex = 5;
+            CmdCopyOrderNumber.Text = "Copy Order Number";
+            CmdCopyOrderNumber.UseVisualStyleBackColor = true;
+            CmdCopyOrderNumber.Click += CmdCopyOrderNumber_Click;
+            // 
+            // DataGridViewCustomerInformations
+            // 
+            DataGridViewCustomerInformations.AllowUserToDeleteRows = false;
+            DataGridViewCustomerInformations.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            DataGridViewCustomerInformations.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            DataGridViewCustomerInformations.Location = new Point(371, 204);
+            DataGridViewCustomerInformations.Margin = new Padding(4, 5, 4, 5);
+            DataGridViewCustomerInformations.MultiSelect = false;
+            DataGridViewCustomerInformations.Name = "DataGridViewCustomerInformations";
+            DataGridViewCustomerInformations.ReadOnly = true;
+            DataGridViewCustomerInformations.RowHeadersWidth = 62;
+            DataGridViewCustomerInformations.Size = new Size(179, 70);
+            DataGridViewCustomerInformations.TabIndex = 10;
+            // 
+            // DataGridViewOrderDetails
+            // 
+            DataGridViewOrderDetails.AllowUserToDeleteRows = false;
+            DataGridViewOrderDetails.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            DataGridViewOrderDetails.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            DataGridViewOrderDetails.Location = new Point(714, 181);
+            DataGridViewOrderDetails.Margin = new Padding(4, 5, 4, 5);
+            DataGridViewOrderDetails.MultiSelect = false;
+            DataGridViewOrderDetails.Name = "DataGridViewOrderDetails";
+            DataGridViewOrderDetails.ReadOnly = true;
+            DataGridViewOrderDetails.RowHeadersWidth = 62;
+            DataGridViewOrderDetails.Size = new Size(342, 100);
+            DataGridViewOrderDetails.TabIndex = 7;
+            // 
+            // DataGridViewOrderPositions
+            // 
+            DataGridViewOrderPositions.AllowUserToDeleteRows = false;
+            DataGridViewOrderPositions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            DataGridViewOrderPositions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            DataGridViewOrderPositions.Location = new Point(714, 24);
+            DataGridViewOrderPositions.Margin = new Padding(4, 5, 4, 5);
+            DataGridViewOrderPositions.MultiSelect = false;
+            DataGridViewOrderPositions.Name = "DataGridViewOrderPositions";
+            DataGridViewOrderPositions.ReadOnly = true;
+            DataGridViewOrderPositions.RowHeadersWidth = 62;
+            DataGridViewOrderPositions.Size = new Size(343, 121);
+            DataGridViewOrderPositions.TabIndex = 8;
+            // 
+            // LblNoResults
+            // 
+            LblNoResults.AutoSize = true;
+            LblNoResults.Location = new Point(533, 153);
+            LblNoResults.Name = "LblNoResults";
+            LblNoResults.Size = new Size(154, 15);
+            LblNoResults.TabIndex = 4;
+            LblNoResults.Text = "No items meet filter criteria.";
+            LblNoResults.Visible = false;
             // 
             // DataGridViewInvoices
             // 
@@ -165,81 +227,19 @@
             DataGridViewInvoices.Name = "DataGridViewInvoices";
             DataGridViewInvoices.ReadOnly = true;
             DataGridViewInvoices.RowHeadersWidth = 62;
-            DataGridViewInvoices.Size = new Size(697, 287);
+            DataGridViewInvoices.Size = new Size(691, 153);
             DataGridViewInvoices.TabIndex = 2;
             DataGridViewInvoices.SelectionChanged += DataGridViewInvoices_SelectionChanged;
             // 
-            // CmdCopyCustomerNumber
-            // 
-            CmdCopyCustomerNumber.Location = new Point(727, 109);
-            CmdCopyCustomerNumber.Name = "CmdCopyCustomerNumber";
-            CmdCopyCustomerNumber.Size = new Size(205, 32);
-            CmdCopyCustomerNumber.TabIndex = 6;
-            CmdCopyCustomerNumber.Text = "Copy Customer Number";
-            CmdCopyCustomerNumber.UseVisualStyleBackColor = true;
-            CmdCopyCustomerNumber.Click += CmdCopyCustomerNumber_Click;
-            // 
-            // CmdCopyOrderNumber
-            // 
-            CmdCopyOrderNumber.Location = new Point(727, 180);
-            CmdCopyOrderNumber.Name = "CmdCopyOrderNumber";
-            CmdCopyOrderNumber.Size = new Size(205, 34);
-            CmdCopyOrderNumber.TabIndex = 5;
-            CmdCopyOrderNumber.Text = "Copy Order Number";
-            CmdCopyOrderNumber.UseVisualStyleBackColor = true;
-            CmdCopyOrderNumber.Click += CmdCopyOrderNumber_Click;
-            // 
-            // DataGridViewCustomerInformations
-            // 
-            DataGridViewCustomerInformations.AllowUserToDeleteRows = false;
-            DataGridViewCustomerInformations.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            DataGridViewCustomerInformations.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            DataGridViewCustomerInformations.Location = new Point(728, 74);
-            DataGridViewCustomerInformations.Margin = new Padding(4, 5, 4, 5);
-            DataGridViewCustomerInformations.MultiSelect = false;
-            DataGridViewCustomerInformations.Name = "DataGridViewCustomerInformations";
-            DataGridViewCustomerInformations.ReadOnly = true;
-            DataGridViewCustomerInformations.RowHeadersWidth = 62;
-            DataGridViewCustomerInformations.Size = new Size(329, 32);
-            DataGridViewCustomerInformations.TabIndex = 10;
-            // 
-            // DataGridViewOrderDetails
-            // 
-            DataGridViewOrderDetails.AllowUserToDeleteRows = false;
-            DataGridViewOrderDetails.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            DataGridViewOrderDetails.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            DataGridViewOrderDetails.Location = new Point(728, 217);
-            DataGridViewOrderDetails.Margin = new Padding(4, 5, 4, 5);
-            DataGridViewOrderDetails.MultiSelect = false;
-            DataGridViewOrderDetails.Name = "DataGridViewOrderDetails";
-            DataGridViewOrderDetails.ReadOnly = true;
-            DataGridViewOrderDetails.RowHeadersWidth = 62;
-            DataGridViewOrderDetails.Size = new Size(329, 59);
-            DataGridViewOrderDetails.TabIndex = 7;
-            // 
             // CmdCopyArticleNumber
             // 
-            CmdCopyArticleNumber.Location = new Point(727, 278);
+            CmdCopyArticleNumber.Location = new Point(727, 282);
             CmdCopyArticleNumber.Name = "CmdCopyArticleNumber";
-            CmdCopyArticleNumber.Size = new Size(205, 34);
+            CmdCopyArticleNumber.Size = new Size(205, 30);
             CmdCopyArticleNumber.TabIndex = 9;
             CmdCopyArticleNumber.Text = "Copy Article Number";
             CmdCopyArticleNumber.UseVisualStyleBackColor = true;
             CmdCopyArticleNumber.Click += CmdCopyArticleNumber_Click;
-            // 
-            // DataGridViewOrderPositions
-            // 
-            DataGridViewOrderPositions.AllowUserToDeleteRows = false;
-            DataGridViewOrderPositions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            DataGridViewOrderPositions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            DataGridViewOrderPositions.Location = new Point(728, 145);
-            DataGridViewOrderPositions.Margin = new Padding(4, 5, 4, 5);
-            DataGridViewOrderPositions.MultiSelect = false;
-            DataGridViewOrderPositions.Name = "DataGridViewOrderPositions";
-            DataGridViewOrderPositions.ReadOnly = true;
-            DataGridViewOrderPositions.RowHeadersWidth = 62;
-            DataGridViewOrderPositions.Size = new Size(329, 32);
-            DataGridViewOrderPositions.TabIndex = 8;
             // 
             // groupBox2
             // 
@@ -289,7 +289,7 @@
             label8.Location = new Point(313, 197);
             label8.Margin = new Padding(4, 0, 4, 0);
             label8.Name = "label8";
-            label8.Size = new Size(19, 15);
+            label8.Size = new Size(20, 15);
             label8.TabIndex = 44;
             label8.Text = "To";
             // 
@@ -772,10 +772,10 @@
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)DataGridViewBillingAddress).EndInit();
-            ((System.ComponentModel.ISupportInitialize)DataGridViewInvoices).EndInit();
             ((System.ComponentModel.ISupportInitialize)DataGridViewCustomerInformations).EndInit();
             ((System.ComponentModel.ISupportInitialize)DataGridViewOrderDetails).EndInit();
             ((System.ComponentModel.ISupportInitialize)DataGridViewOrderPositions).EndInit();
+            ((System.ComponentModel.ISupportInitialize)DataGridViewInvoices).EndInit();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
             groupBox3.ResumeLayout(false);
