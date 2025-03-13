@@ -1,3 +1,7 @@
+using BusinessApplicationProject.View;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
+
 namespace BusinessApplicationProject
 {
     internal static class Program
@@ -8,10 +12,14 @@ namespace BusinessApplicationProject
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
+                     
             ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
+            using (var context = new AppDbContext())
+            {
+                context.Database.Migrate(); 
+                DataSeeder.SeedDatabase(context);
+            }
+            Application.Run(new FormMain());
         }
     }
 }
