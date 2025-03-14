@@ -387,78 +387,63 @@ namespace BusinessApplicationProject.View
 
         private void CmdShowInvoice_Click(object sender, EventArgs e)
         {
+            // Ensure a row is selected
             if (DataGridViewOrdersResults.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Please select an order to view its invoice.");
                 return;
             }
 
-            // ✅ Ensure OrderId column exists
+            // Ensure the hidden OrderId column exists and retrieve the order ID
             if (!DataGridViewOrdersResults.Columns.Contains("OrderId"))
             {
                 MessageBox.Show("Order ID column not found. Please refresh the data.");
                 return;
             }
 
-            // ✅ Get selected Order ID
-            int selectedOrderId = Convert.ToInt32(DataGridViewOrdersResults.SelectedRows[0].Cells["OrderId"].Value);
+            object orderIdValue = DataGridViewOrdersResults.SelectedRows[0].Cells["OrderId"].Value;
+            if (orderIdValue == null || !int.TryParse(orderIdValue.ToString(), out int selectedOrderId))
+            {
+                MessageBox.Show("Selected order ID is invalid.");
+                return;
+            }
 
+            // Load the invoice for the selected order
             using (var context = new AppDbContext())
             {
                 var invoice = context.Invoices
                     .Include(i => i.OrderInformations)
-                        .ThenInclude(o => o.CustomerDetails) // ✅ Ensure Customer is loaded
+                        .ThenInclude(o => o.Positions)
+                            .ThenInclude(p => p.ArticleDetails)
                     .Include(i => i.OrderInformations)
-                        .ThenInclude(o => o.Positions)  // ✅ Ensure Positions are loaded
-                            .ThenInclude(p => p.ArticleDetails)  // ✅ Ensure Article Details are loaded
+                        .ThenInclude(o => o.CustomerDetails)
                     .Include(i => i.BillingAddress)
                     .FirstOrDefault(i => i.OrderId == selectedOrderId);
 
                 if (invoice == null)
                 {
-                    MessageBox.Show("No invoice found for this order.", "Invoice Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("No invoice found for the selected order.", "Invoice Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
-                if (invoice.OrderInformations == null)
-                {
-                    MessageBox.Show($"Invoice {invoice.InvoiceNumber} has NO linked Order.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                if (invoice.OrderInformations.CustomerDetails == null)
-                {
-                    MessageBox.Show($"Customer details for invoice {invoice.InvoiceNumber} are missing.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                // ✅ Open Invoice Tab and Display Invoice Information
-                Task.Delay(300).ContinueWith(_ =>
-                {
-                    if (UsrCtrlInvoices.instance != null)
-                    {
-                        UsrCtrlInvoices.instance.Invoke((MethodInvoker)(() =>
-                        {
-                            UsrCtrlInvoices.instance.UpdateEditProperties(invoice);
-                            UsrCtrlInvoices.instance.UpdateAdditionalDataGrids(invoice);
-                        }));
-                    }
-                });
-
+                // Update the invoice user control with the loaded invoice data
+                UsrCtrlInvoices.instance.UpdateSearchResults(i => i.InvoiceNumber == invoice.InvoiceNumber);
+                UsrCtrlInvoices.instance.UpdateAdditionalDataGrids(invoice);
             }
 
-            // ✅ Switch to Invoice Tab
+            // Switch to the Invoice view via the main form.
             if (_mainForm != null)
             {
                 _mainForm.ToggleView(FormMain.View.Invoices, sender);
-                
+                CmdShowInvoice.Enabled = true;
             }
             else
             {
                 MessageBox.Show("Main form reference is missing. Cannot switch to Invoice view.");
             }
-
         }
+
+
 
 
 

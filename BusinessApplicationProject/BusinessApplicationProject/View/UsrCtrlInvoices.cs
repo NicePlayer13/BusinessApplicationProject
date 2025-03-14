@@ -65,13 +65,14 @@ namespace BusinessApplicationProject.View
             DataGridViewInvoices.Columns.Clear();
         }
 
-        public void UpdateSearchResults()
+        public void UpdateSearchResults(Expression<Func<Invoice, bool>> customFilter = null)
         {
             ClearSearchResults();
 
             try
             {
-                var filter = CreateFilterFunction();
+                // Use the custom filter if provided; otherwise, use the default filter
+                var filter = customFilter ?? CreateFilterFunction();
                 List<Invoice> invoices = invoiceController
                     .Find(filter)
                     .Include(i => i.OrderInformations) // ✅ Include Order
@@ -275,11 +276,16 @@ namespace BusinessApplicationProject.View
                 CmbEditPaymentStatus.SelectedIndex = 0;
             }
         }
-
-        public void UpdateAdditionalDataGrids(Invoice invoice)
+        public void SetInvoiceData(List<Invoice> invoices)
         {
+            // This method sets the DataSource of the invoice grid to the given invoices list.
+            DataGridViewInvoices.AutoGenerateColumns = false;
+            DataGridViewInvoices.DataSource = invoices;
+        }
 
-            if (invoice.OrderInformations != null)
+        public void UpdateAdditionalDataGrids(Invoice? invoice)
+        {
+            if (invoice != null)
             {
                 UpdateCustomerInformations(invoice.OrderInformations.CustomerDetails);
                 UpdateOrderInformations(invoice);
@@ -288,10 +294,21 @@ namespace BusinessApplicationProject.View
             }
             else
             {
-                MessageBox.Show("No order linked to this invoice.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                List<DataGridView> dataGridViews = new List<DataGridView>()
+                {
+                    DataGridViewCustomerInformations,
+                    DataGridViewOrderDetails,
+                    DataGridViewOrderPositions,
+                    DataGridViewBillingAddress
+                };
+
+                foreach (var dataGridView in dataGridViews)
+                {
+                    dataGridView.DataSource = null;
+                    dataGridView.Columns.Clear();
+                }
             }
         }
-
 
         private void UpdateCustomerInformations(Customer customer)
         {
@@ -299,6 +316,7 @@ namespace BusinessApplicationProject.View
             DataGridViewCustomerInformations.DataSource = null;
             DataGridViewCustomerInformations.AutoGenerateColumns = false;
 
+          
             DataGridViewTextBoxColumn customerNumberColumn = new DataGridViewTextBoxColumn
             {
                 Name = "customerNumberColumn",
@@ -307,15 +325,17 @@ namespace BusinessApplicationProject.View
             };
 
             DataGridViewCustomerInformations.Columns.Add(customerNumberColumn);
+          
 
             DataGridViewCustomerInformations.DataSource = new List<Customer> { customer };
         }
 
-        private void UpdateOrderInformations(Invoice invoice)
+        public void UpdateOrderInformations(Invoice invoice)
         {
             DataGridViewOrderDetails.Columns.Clear();
             DataGridViewOrderDetails.DataSource = null;
             DataGridViewOrderDetails.AutoGenerateColumns = false;
+            
 
             DataGridViewTextBoxColumn orderNumberColumn = new DataGridViewTextBoxColumn
             {
@@ -349,6 +369,7 @@ namespace BusinessApplicationProject.View
             DataGridViewOrderDetails.Columns.Add(orderDateColumn);
             DataGridViewOrderDetails.Columns.Add(grossPriceColumn);
             DataGridViewOrderDetails.Columns.Add(netPriceColumn);
+           
 
             Order order = invoice.OrderInformations;
 
