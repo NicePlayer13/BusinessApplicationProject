@@ -26,7 +26,7 @@ Bevor du das Projekt startest, stelle sicher, dass du folgende Tools installiert
 ### 🔹 1️⃣ Repository klonen
 Öffne ein Terminal (PowerShell oder CMD) und klone das Projekt:
 ```sh
-git clone https://github.com/<your-username>/BusinessApplicationProject.git
+git clone https://github.com/NicePlayer13/BusinessApplicationProject.git
 cd BusinessApplicationProject
 ```
 
@@ -113,7 +113,7 @@ Da es sich um ein Schulprojekt handelt, unterliegt dieses Projekt keiner spezifi
 
 ## 📩 Kontakt & Support
 📧 **Entwickler:** Khabat Rammo  
-🔗 **GitHub:** [github.com/<your-username>](https://github.com/<your-username>)
+🔗 **GitHub:** [github.com/NicePlayer13](https://github.com/NicePlayer13)
 
 ---
 
