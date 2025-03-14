@@ -1,26 +1,120 @@
-# business-application-project
+# BusinessApplicationProject
 
-Interdisciplinary project to create a business application in C\#.
+## 📌 Auftragsverwaltungs-System
 
-## Auftragsverwaltungs-System
+### 🏗️ Einführung
+Dieses Projekt ist eine **Auftragsverwaltungs-Software**, die mit **C# und Entity Framework Core** entwickelt wurde. Es dient der Verwaltung von **Kunden, Bestellungen, Rechnungen und Artikeln**. Die Anwendung basiert auf **Windows Forms (WinForms)** und nutzt **Microsoft SQL Server** als Datenbank.
 
-### Einführung
+Das Projekt wurde als **Schulprojekt** entwickelt und folgt modernen Softwareentwicklungspraktiken.
 
-Dieses Projekt, durchgeführt als Teil eines Schulprojekts, zielt darauf ab, eine effiziente und benutzerfreundliche Softwarelösung zur Auftragsverwaltung zu entwickeln. Es konzentriert sich auf die Implementierung eines robusten Datenverwaltungs- und -verarbeitungssystems und berücksichtigt dabei die besten Praktiken des Softwareengineerings.
+---
 
-Die Entwicklung dieses Projekts erfolgte unter Anwendung moderner Softwareentwicklungsmethoden und -werkzeuge und umfasste verschiedene Phasen von der Konzeption bis zur Implementierung.
+## 🚀 Installation & Einrichtung
 
-## Installationsanleitung
+### 🔧 Voraussetzungen
+Bevor du das Projekt startest, stelle sicher, dass du folgende Tools installiert hast:
 
-### Voraussetzungen
+1. **.NET 8 SDK** ([Download](https://dotnet.microsoft.com/download/dotnet/8.0))
+2. **Microsoft SQL Server (LocalDB)** (wird mit Visual Studio installiert)
+3. **Git** ([Download](https://git-scm.com/))
+4. **Visual Studio 2022** mit dem **.NET Desktop Development**- und **Entity Framework Core**-Workload
 
-### Einrichtung der Datenbank
+---
 
+## 🏗️ Projekt einrichten
 
-## Lizenz
+### 🔹 1️⃣ Repository klonen
+Öffne ein Terminal (PowerShell oder CMD) und klone das Projekt:
+```sh
+git clone https://github.com/<your-username>/BusinessApplicationProject.git
+cd BusinessApplicationProject
+```
 
+---
+
+## 📦 Datenbank einrichten
+
+### 🔹 2️⃣ Konfiguration der Datenbank
+Die Anwendung verwendet **SQL Server LocalDB** mit folgender Konfiguration:
+- **Server**: `(localdb)\mssqllocaldb`
+- **Datenbankname**: `BusinessApplicationProjectDB`
+
+Falls du eine andere SQL-Instanz nutzt, bearbeite `AppDbContext.cs`:
+```csharp
+optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=BusinessApplicationProjectDB;Trusted_Connection=True;");
+```
+
+---
+
+## 📜 Migrationen & Datenbankupdate
+
+### 🔹 3️⃣ Erste Migration erstellen
+Falls noch keine Migrationen existieren:
+```sh
+dotnet ef migrations add InitialCreate
+```
+
+Falls die Datenbank bereits existiert, aber fehlerhaft ist, **lösche und erstelle sie neu**:
+```sh
+dotnet ef database drop --force
+dotnet ef database update
+```
+
+Falls `dotnet ef` nicht gefunden wird, installiere das Entity Framework CLI-Tool:
+```sh
+dotnet tool install --global dotnet-ef
+```
+
+---
+
+## 🏁 Anwendung starten
+1. **Öffne das Projekt in Visual Studio**
+2. **Setze `FormMain` als Startprojekt** (Falls es eine Hauptform gibt)
+3. **Starte die Anwendung über `F5` oder `dotnet run`**
+
+---
+
+## 🛠️ Häufige Fehler & Lösungen
+
+### ❌ **Fehlermeldung: "dotnet ef" nicht gefunden**
+👉 **Lösung:**
+```sh
+dotnet tool install --global dotnet-ef
+```
+
+### ❌ **Fehlermeldung: "Invalid column name 'CustomerAddressId'"**
+👉 **Lösung:**  
+1. Prüfe, ob die Spalte `CustomerAddressId` in der Tabelle **Customers** existiert.
+2. Falls nicht, führe eine neue Migration durch:
+```sh
+dotnet ef migrations add FixCustomerAddress
+dotnet ef database update
+```
+
+### ❌ **Fehlermeldung: "Cannot drop database because it is currently in use"**
+👉 **Lösung:**  
+Beende alle aktiven SQL-Verbindungen:
+```sh
+USE master;
+ALTER DATABASE BusinessApplicationProjectDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+DROP DATABASE BusinessApplicationProjectDB;
+```
+Dann erstelle die Datenbank erneut:
+```sh
+dotnet ef database update
+```
+
+---
+
+## 📜 Lizenz
 Da es sich um ein Schulprojekt handelt, unterliegt dieses Projekt keiner spezifischen Lizenz.
 
-### Kontaktinformationen
+---
 
-**Entwickler** Khabat Rammo
+## 📩 Kontakt & Support
+📧 **Entwickler:** Khabat Rammo  
+🔗 **GitHub:** [github.com/<your-username>](https://github.com/<your-username>)
+
+---
+
+### **🚀 Viel Erfolg mit der Anwendung!**
