@@ -1,20 +1,27 @@
 ﻿using System.Data;
 using System.Linq.Expressions;
 using BusinessApplicationProject.Controller;
+using BusinessApplicationProject.Migrations;
 using BusinessApplicationProject.Model;
 using BusinessApplicationProject.Repository;
 using Microsoft.EntityFrameworkCore;
+
+
 
 namespace BusinessApplicationProject.View
 {
     public partial class UsrCtrlOrders : UserControl
     {
-        public static UsrCtrlOrders instance = new();
+        public static UsrCtrlOrders instance;
 
-        public UsrCtrlOrders()
+        private FormMain _mainForm;  // ✅ Store reference to FormMain
+
+        // ✅ Pass FormMain reference in constructor
+        public UsrCtrlOrders(FormMain mainForm)
         {
             InitializeComponent();
-
+            _mainForm = mainForm;  // ✅ Assign FormMain instance
+            instance = this;  // ✅ Assign instance
         }
 
         #region Search
@@ -369,12 +376,6 @@ namespace BusinessApplicationProject.View
             //GrpInformationOrder.Visible = true; // ✅ Show the Order Info section
         }
 
-
-
-
-
-
-
         private void CmdDeleteSelectedObject_Click(object sender, EventArgs e)
         {
             //Throw warning
@@ -402,10 +403,11 @@ namespace BusinessApplicationProject.View
             // ✅ Get selected Order ID
             int selectedOrderId = Convert.ToInt32(DataGridViewOrdersResults.SelectedRows[0].Cells["OrderId"].Value);
 
-            // ✅ Search for an invoice using the order ID
             using (var context = new AppDbContext())
             {
                 var invoice = context.Invoices
+                    .Include(i => i.OrderInformations)
+                        .ThenInclude(o => o.CustomerDetails) // ✅ Ensure Customer is loaded
                     .Include(i => i.OrderInformations)
                         .ThenInclude(o => o.Positions)  // ✅ Ensure Positions are loaded
                             .ThenInclude(p => p.ArticleDetails)  // ✅ Ensure Article Details are loaded
@@ -424,31 +426,42 @@ namespace BusinessApplicationProject.View
                     return;
                 }
 
-                // ✅ Force Load Positions If Still Null
-                if (invoice.OrderInformations.Positions == null || !invoice.OrderInformations.Positions.Any())
+                if (invoice.OrderInformations.CustomerDetails == null)
                 {
-                    invoice.OrderInformations.Positions = context.Positions
-                        .Include(p => p.ArticleDetails)
-                        .Where(p => p.OrderId == invoice.OrderInformations.Id)
-                        .ToList();
-
-                    if (!invoice.OrderInformations.Positions.Any())
-                    {
-                        MessageBox.Show($"Order {invoice.OrderInformations.OrderNumber} has NO Positions.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
+                    MessageBox.Show($"Customer details for invoice {invoice.InvoiceNumber} are missing.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
 
                 // ✅ Open Invoice Tab and Display Invoice Information
-                if (UsrCtrlInvoices.instance != null)
+                Task.Delay(300).ContinueWith(_ =>
                 {
-                    UsrCtrlInvoices.instance.UpdateEditProperties(invoice);
-                    UsrCtrlInvoices.instance.UpdateAdditionalDataGrids(invoice);
-                }
+                    if (UsrCtrlInvoices.instance != null)
+                    {
+                        UsrCtrlInvoices.instance.Invoke((MethodInvoker)(() =>
+                        {
+                            UsrCtrlInvoices.instance.UpdateEditProperties(invoice);
+                            UsrCtrlInvoices.instance.UpdateAdditionalDataGrids(invoice);
+                        }));
+                    }
+                });
+
             }
 
-
+            // ✅ Switch to Invoice Tab
+            if (_mainForm != null)
+            {
+                _mainForm.ToggleView(FormMain.View.Invoices, sender);
+                
+            }
+            else
+            {
+                MessageBox.Show("Main form reference is missing. Cannot switch to Invoice view.");
+            }
 
         }
+
+
+
 
 
 

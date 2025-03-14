@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|c:\\users\\rkh\\source\\repos\\businessapplicationproject\\businessapplicationproject\\businessapplicationproject\\view\\usrctrlinvoices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|solutionrelative:businessapplicationproject\\view\\usrctrlinvoices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|c:\\users\\rkh\\source\\repos\\businessapplicationproject\\businessapplicationproject\\businessapplicationproject\\view\\usrctrlinvoices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|solutionrelative:businessapplicationproject\\view\\usrctrlinvoices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|c:\\users\\rkh\\source\\repos\\businessapplicationproject\\businessapplicationproject\\businessapplicationproject\\view\\usrctrlorders.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|solutionrelative:businessapplicationproject\\view\\usrctrlorders.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -11,12 +19,12 @@
       "RelativeMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|solutionrelative:businessapplicationproject\\view\\usrctrlorders.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|c:\\users\\rkh\\source\\repos\\businessapplicationproject\\businessapplicationproject\\businessapplicationproject\\view\\usrctrlinvoices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|solutionrelative:businessapplicationproject\\view\\usrctrlinvoices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|c:\\users\\rkh\\source\\repos\\businessapplicationproject\\businessapplicationproject\\businessapplicationproject\\view\\formmain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|solutionrelative:businessapplicationproject\\view\\formmain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|c:\\users\\rkh\\source\\repos\\businessapplicationproject\\businessapplicationproject\\businessapplicationproject\\view\\usrctrlinvoices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|solutionrelative:businessapplicationproject\\view\\usrctrlinvoices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+      "AbsoluteMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|c:\\users\\rkh\\source\\repos\\businessapplicationproject\\businessapplicationproject\\businessapplicationproject\\view\\formmain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|solutionrelative:businessapplicationproject\\view\\formmain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E648A9C4-CBBE-46CC-A400-485ED383C3BF}|BusinessApplicationProject\\BusinessApplicationProject.csproj|c:\\users\\rkh\\source\\repos\\businessapplicationproject\\businessapplicationproject\\businessapplicationproject\\model\\position.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -34,7 +42,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,20 +54,45 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
+              "Title": "FormMain.cs",
+              "DocumentMoniker": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\FormMain.cs",
+              "RelativeDocumentMoniker": "BusinessApplicationProject\\View\\FormMain.cs",
+              "ToolTip": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\FormMain.cs",
+              "RelativeToolTip": "BusinessApplicationProject\\View\\FormMain.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAAADYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-14T06:38:24.682Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "FormMain.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\FormMain.cs",
+              "RelativeDocumentMoniker": "BusinessApplicationProject\\View\\FormMain.cs",
+              "ToolTip": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\FormMain.cs [Design]",
+              "RelativeToolTip": "BusinessApplicationProject\\View\\FormMain.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-14T06:38:23.145Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "UsrCtrlOrders.cs",
               "DocumentMoniker": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\UsrCtrlOrders.cs",
               "RelativeDocumentMoniker": "BusinessApplicationProject\\View\\UsrCtrlOrders.cs",
               "ToolTip": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\UsrCtrlOrders.cs",
               "RelativeToolTip": "BusinessApplicationProject\\View\\UsrCtrlOrders.cs",
-              "ViewState": "AgIAAJoBAAAAAAAAAAAIwL8BAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAJcBAAAAAAAAAAAwwL0BAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-14T06:20:34.861Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "UsrCtrlInvoices.cs [Design]",
               "DocumentMoniker": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\UsrCtrlInvoices.cs",
               "RelativeDocumentMoniker": "BusinessApplicationProject\\View\\UsrCtrlInvoices.cs",
@@ -71,20 +104,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "UsrCtrlInvoices.cs",
               "DocumentMoniker": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\UsrCtrlInvoices.cs",
               "RelativeDocumentMoniker": "BusinessApplicationProject\\View\\UsrCtrlInvoices.cs",
               "ToolTip": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\UsrCtrlInvoices.cs",
               "RelativeToolTip": "BusinessApplicationProject\\View\\UsrCtrlInvoices.cs",
-              "ViewState": "AgIAAGEBAAAAAAAAAAAAAHABAAANAAAAAAAAAA==",
+              "ViewState": "AgIAALIBAAAAAAAAAAAwwOYBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-13T20:41:51.578Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "UsrCtrlArticles.cs",
               "DocumentMoniker": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\UsrCtrlArticles.cs",
               "RelativeDocumentMoniker": "BusinessApplicationProject\\View\\UsrCtrlArticles.cs",
@@ -96,7 +129,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "Position.cs",
               "DocumentMoniker": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\Model\\Position.cs",
               "RelativeDocumentMoniker": "BusinessApplicationProject\\Model\\Position.cs",
@@ -109,7 +142,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "UsrCtrlOrders.cs [Design]",
               "DocumentMoniker": "C:\\Users\\RKH\\source\\repos\\BusinessApplicationProject\\BusinessApplicationProject\\BusinessApplicationProject\\View\\UsrCtrlOrders.cs",
               "RelativeDocumentMoniker": "BusinessApplicationProject\\View\\UsrCtrlOrders.cs",

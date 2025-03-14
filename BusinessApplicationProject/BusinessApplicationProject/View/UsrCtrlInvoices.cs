@@ -13,6 +13,7 @@ namespace BusinessApplicationProject.View
 
         public UsrCtrlInvoices()
         {
+
             InitializeComponent();
             DatPckInvoiceDateFrom.MaxDate = DateTime.UtcNow.AddYears(1);
             DatPckInvoiceDateTo.MaxDate = DateTime.UtcNow.AddYears(1);
@@ -64,7 +65,7 @@ namespace BusinessApplicationProject.View
             DataGridViewInvoices.Columns.Clear();
         }
 
-        private void UpdateSearchResults()
+        public void UpdateSearchResults()
         {
             ClearSearchResults();
 
@@ -275,9 +276,10 @@ namespace BusinessApplicationProject.View
             }
         }
 
-        public void UpdateAdditionalDataGrids(Invoice? invoice)
+        public void UpdateAdditionalDataGrids(Invoice invoice)
         {
-            if (invoice != null)
+
+            if (invoice.OrderInformations != null)
             {
                 UpdateCustomerInformations(invoice.OrderInformations.CustomerDetails);
                 UpdateOrderInformations(invoice);
@@ -286,21 +288,10 @@ namespace BusinessApplicationProject.View
             }
             else
             {
-                List<DataGridView> dataGridViews = new List<DataGridView>()
-                {
-                    DataGridViewCustomerInformations,
-                    DataGridViewOrderDetails,
-                    DataGridViewOrderPositions,
-                    DataGridViewBillingAddress
-                };
-
-                foreach (var dataGridView in dataGridViews)
-                {
-                    dataGridView.DataSource = null;
-                    dataGridView.Columns.Clear();
-                }
+                MessageBox.Show("No order linked to this invoice.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+
 
         private void UpdateCustomerInformations(Customer customer)
         {

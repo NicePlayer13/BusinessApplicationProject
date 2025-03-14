@@ -2,21 +2,23 @@
 {
     public partial class FormMain : Form
     {
-        enum View
+       public enum View
         {
             Articles,
             Orders,
             Invoices,
             Customers
         }
-
+        private UsrCtrlOrders ordersControl;
         public FormMain()
         {
             InitializeComponent();
 
             this.StartPosition = FormStartPosition.CenterScreen;
 
-
+            ordersControl = new UsrCtrlOrders(this);
+            // ✅ Ensure the static instance is initialized
+    UsrCtrlInvoices.instance = new UsrCtrlInvoices();
             // Set default view to customers
             ToggleView(View.Customers, CmdCustomers);
         }
@@ -36,7 +38,7 @@
             ToggleView(View.Orders, sender);
         }
 
-        private void CmdInvoices_Click(object sender, EventArgs e)
+        public void CmdInvoices_Click(object sender, EventArgs e)
         {
             ToggleView(View.Invoices, sender);
         }
@@ -46,7 +48,7 @@
             Application.Exit();
         }
 
-        private void ToggleView(View nextView, object sender)
+        public void ToggleView(View nextView, object sender)
         {
             EnableAllNavigationButtons();
             ((Button)sender).Enabled = false;
@@ -80,7 +82,7 @@
             CmdCloseProgram.Enabled = true;
         }
 
-        private void SwapViewInstance(UserControl instance)
+        public void SwapViewInstance(UserControl instance)
         {
             if (!PnlMainView.Controls.Contains(instance))
             {
