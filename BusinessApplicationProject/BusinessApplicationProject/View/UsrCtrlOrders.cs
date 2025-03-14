@@ -462,18 +462,64 @@ namespace BusinessApplicationProject.View
         #endregion
 
 
+
         #region Positions
         private void CmdOpenSelectedPosition_Click(object sender, EventArgs e)
         {
-            //check if only one Position is selected
-            if (DataGridViewOrderPositions.SelectedCells.Count != 1)
+            // Ensure exactly one row is selected
+            if (DataGridViewOrderPositions.SelectedRows.Count != 1)
             {
+                MessageBox.Show("Please select exactly one position to edit.",
+                    "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            //Show information of position
-            GrpInformationSelectedPosition.Visible = true;
 
+            // Get the selected row from the grid
+            DataGridViewRow selectedRow = DataGridViewOrderPositions.SelectedRows[0];
+
+            // Retrieve cell values using the column names from your query
+            string positionNumber = selectedRow.Cells["PositionNumber"].Value?.ToString() ?? "";
+            string quantity = selectedRow.Cells["Quantity"].Value?.ToString() ?? "";
+            string articleNumber = selectedRow.Cells["Article"].Value?.ToString() ?? "";
+
+            // Fill the editing text boxes with the retrieved values
+            TxtInputPositionNumber.Text = positionNumber;
+            TxtInputOrderPositionArticleQuantity.Text = quantity;
+
+            // Now, update the ComboBox for the Article.
+            // Assume that CmbInputArticle is already populated with either Article objects or strings.
+            bool articleFound = false;
+            foreach (var item in CmbInputArticle.Items)
+            {
+                // If the ComboBox contains Article objects, check the ArticleNumber property.
+                if (item is Article article && article.ArticleNumber.Equals(articleNumber, StringComparison.OrdinalIgnoreCase))
+                {
+                    CmbInputArticle.SelectedItem = item;
+                    articleFound = true;
+                    break;
+                }
+                // If items are strings, compare directly.
+                else if (item is string str && str.Equals(articleNumber, StringComparison.OrdinalIgnoreCase))
+                {
+                    CmbInputArticle.SelectedItem = item;
+                    articleFound = true;
+                    break;
+                }
+            }
+            if (!articleFound)
+            {
+                // If no matching item was found, simply set the text.
+                CmbInputArticle.Text = articleNumber;
+            }
+
+            // Finally, show the group/panel that allows editing the selected position.
+            GrpInformationSelectedPosition.Visible = true;
         }
+
+
+
+
+
 
         private void CmdAddNewPosition_Click(object sender, EventArgs e)
         {
