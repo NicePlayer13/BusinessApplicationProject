@@ -59,9 +59,11 @@ namespace BusinessApplicationProject.View
 
             try
             {
-                List<Customer> customers = [];
                 var filter = CreateFilterFunction();
-                customers = customerController.Find(filter);
+                List<Customer> customers = customerController
+                    .Find(filter)
+                    .ToList(); // ✅ Make sure `Find(filter)` is returning `IQueryable<T>`
+
 
                 if (customers.Count > 0)
                 {
@@ -185,7 +187,7 @@ namespace BusinessApplicationProject.View
                     existingCustomer.CustomerAddress.ZipCode = TxtInputCustomerPostalCode.Text;
                     existingCustomer.CustomerAddress.City = TxtInputCustomerCity.Text;
                     existingCustomer.CustomerAddress.Country = TxtInputCustomerCountry.Text;
-               
+
 
                     context.Entry(existingCustomer.CustomerAddress).State = EntityState.Modified; // ✅ Mark Address as Modified
 
@@ -344,12 +346,12 @@ namespace BusinessApplicationProject.View
             if (customer != null)
             {
                 TxtInputCustomerNumber.Text = customer.CustomerNumber;
-               
+
 
                 TxtInputCustomerFirstName.Text = customer.FirstName;
                 TxtInputCustomerLastName.Text = customer.LastName;
                 TxtInputCustomerEmail.Text = customer.Email ?? "";
-               
+
 
                 TxtInputCustomerAdress.Text = customer.CustomerAddress.StreetAddress;
                 TxtInputCustomerPostalCode.Text = customer.CustomerAddress.ZipCode;
@@ -365,7 +367,9 @@ namespace BusinessApplicationProject.View
             {
                 try
                 {
-                    List<Order> orders = orderController.Find(x => x.CustomerDetails.Id == customer.Id);
+                    List<Order> orders = orderController
+                 .Find(x => x.CustomerDetails.Id == customer.Id)
+                 .ToList(); // ✅ Convert IQueryable<Order> to List<Order>
 
                     DataGridViewCustomerOrders.ClearSelection();
                     DataGridViewCustomerOrders.DataSource = null;
@@ -400,6 +404,11 @@ namespace BusinessApplicationProject.View
                     MessageBox.Show("Couldn't load related orders.");
                 }
             }
+        }
+
+        private void CmdShowAllCustomers_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

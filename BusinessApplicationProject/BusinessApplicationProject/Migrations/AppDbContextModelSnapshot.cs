@@ -336,7 +336,7 @@ namespace BusinessApplicationProject.Migrations
                     b.HasOne("BusinessApplicationProject.Model.Customer", "CustomerDetails")
                         .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("CustomerDetails");

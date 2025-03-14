@@ -39,10 +39,8 @@ namespace BusinessApplicationProject.View
             CmbInputArticleGroupParent.Items.Add(string.Empty);
             CmbSearchArticleGroup.Items.Add(string.Empty);
 
-
-            List<ArticleGroup> articleGroups = [];
-
-            articleGroups = articleGroupController.GetAll();
+            // ✅ Fix: Convert IQueryable<ArticleGroup> to List<ArticleGroup> with .ToList()
+            List<ArticleGroup> articleGroups = articleGroupController.GetAll().ToList();
 
             foreach (ArticleGroup group in articleGroups)
             {
@@ -50,8 +48,8 @@ namespace BusinessApplicationProject.View
                 CmbInputArticleGroupParent.Items.Add(group.Name);
                 CmbSearchArticleGroup.Items.Add(group.Name);
             }
-
         }
+
 
         #region Search
         private void CmdSearchArticles_Click(object sender, EventArgs e)
@@ -139,9 +137,14 @@ namespace BusinessApplicationProject.View
         {
             try
             {
-                List<ArticleGroup> articleGroups = [];
-                //var filter = CreateFilterFunctionArticleGroup();
-                articleGroups = articleGroupController.GetAll();
+                // ✅ Create the correct filter for ArticleGroup (not Article)
+                Expression<Func<ArticleGroup, bool>> filter = ag => ag.Parent != null;
+
+                List<ArticleGroup> articleGroups = articleGroupController
+                    .Find(filter) // ✅ Corrected: Now uses ArticleGroup filter
+                    .Include(ag => ag.Parent) // ✅ Apply Include() before ToList()
+                    .ToList();
+
 
                 if (articleGroups.Count > 0)
                 {
@@ -164,10 +167,12 @@ namespace BusinessApplicationProject.View
                         TreeNode value = new TreeNode(articleGroup.Name);
                         foreach (TreeNode node in TreeViewArticles.Nodes)
                         {
-                            if (node.Text == articleGroup.Parent.Name) { node.Nodes.Add(value); }
+                            if (node.Text == articleGroup.Parent.Name)
+                            {
+                                node.Nodes.Add(value);
+                            }
                         }
                     }
-
                 }
                 else
                 {
@@ -178,12 +183,13 @@ namespace BusinessApplicationProject.View
             {
                 MessageBox.Show("Database connection failed. Connection timed out.");
             }
-
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("An error occured.");
+                MessageBox.Show("An error occurred: " + ex.Message);
             }
         }
+
+        
 
         public void UpdateArticles()
         {

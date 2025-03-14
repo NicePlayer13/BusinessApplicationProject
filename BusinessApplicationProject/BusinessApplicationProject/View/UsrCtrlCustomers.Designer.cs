@@ -31,7 +31,6 @@
             GrpResults = new GroupBox();
             LblDataGridCustomersNoResults = new Label();
             DataGridViewCustomersResults = new DataGridView();
-            CmdShowAllCustomers = new Button();
             GrpInformation = new GroupBox();
             LblInfoCustomerPostalCode = new Label();
             LblInfoCustomerCity = new Label();
@@ -90,7 +89,6 @@
             // 
             GrpResults.Controls.Add(LblDataGridCustomersNoResults);
             GrpResults.Controls.Add(DataGridViewCustomersResults);
-            GrpResults.Controls.Add(CmdShowAllCustomers);
             GrpResults.ForeColor = SystemColors.ControlText;
             GrpResults.Location = new Point(3, 251);
             GrpResults.Name = "GrpResults";
@@ -120,14 +118,6 @@
             DataGridViewCustomersResults.Size = new Size(516, 328);
             DataGridViewCustomersResults.TabIndex = 1;
             DataGridViewCustomersResults.SelectionChanged += DataGridViewCustomersResults_SelectionChanged;
-            // 
-            // CmdShowAllCustomers
-            // 
-            CmdShowAllCustomers.Location = new Point(80, 0);
-            CmdShowAllCustomers.Margin = new Padding(2, 2, 2, 2);
-            CmdShowAllCustomers.Name = "CmdShowAllCustomers";
-            CmdShowAllCustomers.Size = new Size(69, 17);
-            CmdShowAllCustomers.TabIndex = 2;
             // 
             // GrpInformation
             // 
@@ -644,7 +634,6 @@
         private Button CmdDeleteCustomer;
         private Button CmdSaveChangesCustomer;
         private DataGridView DataGridViewCustomersResults;
-        private Button CmdShowAllCustomers;
         private Button CmdResetSearchFilters;
         private Button CmdSearchCustomers;
         private Label LblInfoCustomerNumber;

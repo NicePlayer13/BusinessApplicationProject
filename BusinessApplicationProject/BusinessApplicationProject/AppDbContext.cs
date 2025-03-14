@@ -50,9 +50,17 @@ namespace BusinessApplicationProject
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Order>()
-                .HasOne(o => o.CustomerDetails)
-                .WithMany()
-                .HasForeignKey(o => o.CustomerId);
+     .HasOne(o => o.CustomerDetails)
+     .WithMany()
+     .HasForeignKey(o => o.CustomerId)
+     .OnDelete(DeleteBehavior.Restrict); // ✅ Ensure no cascade delete issue
+
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.Positions)
+                .WithOne(p => p.OrderDetails)
+                .HasForeignKey(p => p.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);  // ✅ Ensure correct delete behavior
+
 
             modelBuilder.Entity<Invoice>()
                 .HasOne(i => i.BillingAddress)

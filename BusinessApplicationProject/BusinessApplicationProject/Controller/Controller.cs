@@ -16,19 +16,24 @@ namespace BusinessApplicationProject.Controller
         public required AppDbContextFactory GetContext { get; init; }  
         public required RepositoryFactory GetRepository { get; init; }
 
-        public List<T> GetAll()
+        public IQueryable<T> GetAll()
         {
-            using var context = GetContext();
+            var context = GetContext();
             var repository = GetRepository(context);
-            return repository.GetAll();
+            return repository.GetAll().AsQueryable(); // ✅ Supports .Include() and LINQ chaining
         }
 
-        public List<T> Find(Expression<Func<T, bool>> condition)
+
+        public IQueryable<T> Find(Expression<Func<T, bool>> condition)
         {
-            using var context = GetContext();
+            var context = GetContext();
             var repository = GetRepository(context);
-            return repository.Find(condition);
+            return repository.Find(condition).AsQueryable(); // ✅ Returns IQueryable<T>
         }
+
+
+
+
 
         public T? FindSingle(Expression<Func<T, bool>> condition)
         {

@@ -1,6 +1,7 @@
 ﻿using BusinessApplicationProject.Controller;
 using BusinessApplicationProject.Model;
 using BusinessApplicationProject.Repository;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
@@ -69,9 +70,13 @@ namespace BusinessApplicationProject.View
 
             try
             {
-                List<Invoice> invoices = [];
                 var filter = CreateFilterFunction();
-                invoices = invoiceController.Find(filter);
+                List<Invoice> invoices = invoiceController
+            .Find(filter)
+            .Include(i => i.OrderInformations) // ✅ Include related entities
+            .Include(i => i.BillingAddress)
+            .ToList(); // ✅ Convert to List
+
 
                 if (invoices.Count > 0)
                 {
@@ -585,10 +590,12 @@ namespace BusinessApplicationProject.View
                             billingAddress = order.CustomerDetails.CustomerAddress;
                         }
 
-                        var invoices = invoiceController.GetAll();
-                        int maxInvNumber = (invoices.Count > 0) ?
-                            invoices.Select(n => int.Parse(n.InvoiceNumber.Split('-')[1]))
-                            .Max() : 0;
+                        var invoices = invoiceController.GetAll().ToList(); // ✅ Convert IQueryable<Invoice> to List<Invoice>
+
+                        int maxInvNumber = (invoices.Any()) // ✅ Use .Any() instead of .Count > 0
+                            ? invoices.Select(n => int.Parse(n.InvoiceNumber.Split('-')[1])).Max()
+                            : 0;
+
 
                         string invNumber = (++maxInvNumber).ToString().PadLeft(5, '0');
                         invNumber = "I-" + invNumber;
