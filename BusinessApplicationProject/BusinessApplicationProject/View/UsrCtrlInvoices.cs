@@ -72,10 +72,12 @@ namespace BusinessApplicationProject.View
             {
                 var filter = CreateFilterFunction();
                 List<Invoice> invoices = invoiceController
-            .Find(filter)
-            .Include(i => i.OrderInformations) // ✅ Include related entities
-            .Include(i => i.BillingAddress)
-            .ToList(); // ✅ Convert to List
+                    .Find(filter)
+                    .Include(i => i.OrderInformations) // ✅ Include Order
+                        .ThenInclude(o => o.Positions) // ✅ Ensure Positions are loaded
+                            .ThenInclude(p => p.ArticleDetails) // ✅ Ensure ArticleDetails are loaded
+                    .Include(i => i.BillingAddress) // ✅ Include Billing Address
+                    .ToList(); // ✅ Convert to List
 
 
                 if (invoices.Count > 0)
@@ -216,49 +218,64 @@ namespace BusinessApplicationProject.View
             }
         }
 
-        private void UpdateEditProperties(Invoice? invoice)
+        public void UpdateEditProperties(Invoice? invoice)
         {
             if (invoice != null)
             {
                 TxtEditInvoiceNumber.Text = invoice.InvoiceNumber;
-                TxtEditOrderNumber.Text = invoice.OrderInformations.OrderNumber;
+                TxtEditOrderNumber.Text = invoice.OrderInformations?.OrderNumber ?? "Unknown";
                 TxtEditOrderNumber.Enabled = false;
 
                 ChkEditUseCustomerAddress.Checked = false;
                 ChkEditUseCustomerAddress.Enabled = false;
-                TxtEditStreetAddress.Text = invoice.BillingAddress.StreetAddress;
-                TxtEditZipCode.Text = invoice.BillingAddress.ZipCode;
-                TxtEditCity.Text = invoice.BillingAddress.City;
-                TxtEditCountry.Text = invoice.BillingAddress.Country;
+
+                // ✅ Ensure BillingAddress is not null before accessing its properties
+                if (invoice.BillingAddress != null)
+                {
+                    TxtEditStreetAddress.Text = invoice.BillingAddress.StreetAddress;
+                    TxtEditZipCode.Text = invoice.BillingAddress.ZipCode;
+                    TxtEditCity.Text = invoice.BillingAddress.City;
+                    TxtEditCountry.Text = invoice.BillingAddress.Country;
+                }
+                else
+                {
+                    // ✅ Provide default values to avoid NullReferenceException
+                    TxtEditStreetAddress.Text = "No Address";
+                    TxtEditZipCode.Text = "N/A";
+                    TxtEditCity.Text = "N/A";
+                    TxtEditCountry.Text = "N/A";
+                }
 
                 NumEditDiscount.Value = (decimal)invoice.Discount;
                 NumEditTaxes.Value = (decimal)invoice.TaxPercentage;
 
-                CmbEditPaymentMethod.SelectedItem = invoice.PaymentMethod;
-                CmbEditPaymentStatus.SelectedItem = invoice.PaymentStatus;
+                CmbEditPaymentMethod.SelectedItem = invoice.PaymentMethod ?? "Unknown";
+                CmbEditPaymentStatus.SelectedItem = invoice.PaymentStatus ?? "Unknown";
             }
             else
             {
-                TxtEditInvoiceNumber.Text = String.Empty;
-                TxtEditOrderNumber.Text = String.Empty;
+                // ✅ Clear fields if invoice is null
+                TxtEditInvoiceNumber.Text = "";
+                TxtEditOrderNumber.Text = "";
                 TxtEditOrderNumber.Enabled = true;
 
                 ChkEditUseCustomerAddress.Checked = false;
                 ChkEditUseCustomerAddress.Enabled = true;
-                TxtEditStreetAddress.Text = String.Empty;
-                TxtEditZipCode.Text = String.Empty;
-                TxtEditCity.Text = String.Empty;
-                TxtEditCountry.Text = String.Empty;
+
+                TxtEditStreetAddress.Text = "";
+                TxtEditZipCode.Text = "";
+                TxtEditCity.Text = "";
+                TxtEditCountry.Text = "";
 
                 NumEditDiscount.Value = 0;
-                NumEditTaxes.Value = (decimal)8.1;
+                NumEditTaxes.Value = 8.1m;
 
                 CmbEditPaymentMethod.SelectedIndex = 0;
                 CmbEditPaymentStatus.SelectedIndex = 0;
             }
         }
 
-        private void UpdateAdditionalDataGrids(Invoice? invoice)
+        public void UpdateAdditionalDataGrids(Invoice? invoice)
         {
             if (invoice != null)
             {
@@ -345,12 +362,39 @@ namespace BusinessApplicationProject.View
             Order order = invoice.OrderInformations;
 
             double grossPrice = 0;
+            if (order.Positions == null || !order.Positions.Any())
+            {
+                MessageBox.Show("No positions found for this order.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
 
             foreach (var pos in order.Positions)
             {
+                if (pos == null)
+                {
+                    MessageBox.Show("A null position was encountered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    continue;  // Skip to the next position
+                }
+
+                if (pos.ArticleDetails == null)
+                {
+                    MessageBox.Show($"Position ID {pos.Id} has no linked ArticleDetails.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    continue;
+                }
+
                 var art = articleController.FindAsOf(order.Date, x => x.Id == pos.ArticleDetails.Id).FirstOrDefault();
-                grossPrice += pos.Quantity * art.Price;
+
+                if (art != null)
+                {
+                    grossPrice += pos.Quantity * art.Price;
+                }
+                else
+                {
+                    MessageBox.Show($"Article not found for Position ID: {pos.Id}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
+
 
             var netPrice = (grossPrice - invoice.Discount) * ((100 + invoice.TaxPercentage) / 100);
 
@@ -367,6 +411,12 @@ namespace BusinessApplicationProject.View
 
         private void UpdatePositionInformations(Invoice invoice)
         {
+            if (invoice.OrderInformations == null)
+            {
+                MessageBox.Show("Order information is missing.");
+                return;
+            }
+
             DataGridViewOrderPositions.Columns.Clear();
             DataGridViewOrderPositions.DataSource = null;
             DataGridViewOrderPositions.AutoGenerateColumns = false;
@@ -416,21 +466,39 @@ namespace BusinessApplicationProject.View
 
             var flatPositions = new List<object>();
 
-            foreach (var pos in order.Positions)
+            foreach (var pos in invoice.OrderInformations.Positions ?? new List<Position>())
             {
-                var art = articleController.FindAsOf(order.Date, x => x.Id == pos.ArticleDetails.Id).FirstOrDefault();
-
-                var flatPos = new
+                if (pos == null)
                 {
-                    pos.PositionNumber,
-                    art.ArticleNumber,
-                    pos.Quantity,
-                    ArticleName = art.Name,
-                    GrossPrice = art.Price
-                };
+                    MessageBox.Show("A null position was encountered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    continue;  // Skip to the next position
+                }
 
-                flatPositions.Add(flatPos);
+                if (pos.ArticleDetails == null)
+                {
+                    MessageBox.Show($"Position ID {pos.Id} has no linked ArticleDetails.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    continue;
+                }
+
+                var art = articleController.FindAsOf(invoice.OrderInformations.Date, x => x.Id == pos.ArticleDetails.Id).FirstOrDefault();
+
+                if (art != null)
+                {
+                    flatPositions.Add(new
+                    {
+                        pos.PositionNumber,
+                        art.ArticleNumber,
+                        pos.Quantity,
+                        ArticleName = art.Name,
+                        GrossPrice = art.Price
+                    });
+                }
+                else
+                {
+                    MessageBox.Show($"Article not found for Position ID: {pos.Id}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
+
 
             DataGridViewOrderPositions.DataSource = flatPositions;
         }

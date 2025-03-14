@@ -15,13 +15,15 @@ namespace BusinessApplicationProject.Model
         public required int PositionNumber { get; set; }
 
         public required int ArticleId { get; set; }
+
         [ForeignKey(nameof(ArticleId))]
-        public required Article ArticleDetails { get; set; }
+        public virtual Article? ArticleDetails { get; set; } // ✅ Allow Lazy Loading & Nullable
 
         public int Quantity { get; set; }
 
         public required int OrderId { get; set; }
+
         [ForeignKey(nameof(OrderId))]
-        public required Order OrderDetails { get; set; }
+        public virtual Order? OrderDetails { get; set; } // ✅ Allow Lazy Loading & Nullable
     }
 }

@@ -156,21 +156,22 @@ namespace BusinessApplicationProject.View
 
         public void UpdateSearchResults()
         {
-            
             DataGridViewOrdersResults.AutoGenerateColumns = false;
             LblGridViewOrdersNoResults.Visible = false;
             DataGridViewOrdersResults.DataSource = null;
             DataGridViewOrdersResults.Columns.Clear();
             ResetAllFilters();
+
             var filter = CreateFilterFunction();
+
             try
             {
-                
                 List<Order> orders = orderController
                     .Find(filter)
                     .Include(o => o.CustomerDetails) // ✅ Load Customer
                     .Include(o => o.Positions) // ✅ Load Order Positions
                     .ThenInclude(p => p.ArticleDetails) // ✅ Load Article Details
+                    .Include(o => o.Invoices) // ✅ Load related invoices
                     .ToList();
 
                 if (orders.Count > 0)
@@ -180,7 +181,7 @@ namespace BusinessApplicationProject.View
                     {
                         Name = "OrderId",
                         HeaderText = "Order ID",
-                        DataPropertyName = "OrderId",
+                        DataPropertyName = "Id",
                         Visible = false  // Hide from UI but available for selection
                     };
 
@@ -202,21 +203,29 @@ namespace BusinessApplicationProject.View
                     {
                         Name = "customerNumberColumn",
                         HeaderText = "Customer Number",
-                        DataPropertyName = "CustomerNumber"
+                        DataPropertyName = "CustomerDetails.CustomerNumber"
                     };
 
                     DataGridViewTextBoxColumn customerFirstNameColumn = new DataGridViewTextBoxColumn
                     {
                         Name = "customerFirstNameColumn",
                         HeaderText = "Customer First Name",
-                        DataPropertyName = "CustomerFirstName"
+                        DataPropertyName = "CustomerDetails.FirstName"
                     };
 
                     DataGridViewTextBoxColumn customerLastNameColumn = new DataGridViewTextBoxColumn
                     {
                         Name = "customerLastNameColumn",
                         HeaderText = "Customer Last Name",
-                        DataPropertyName = "CustomerLastName"
+                        DataPropertyName = "CustomerDetails.LastName"
+                    };
+
+                    // ✅ New: Add Invoice Number Column
+                    DataGridViewTextBoxColumn invoiceNumberColumn = new DataGridViewTextBoxColumn
+                    {
+                        Name = "invoiceNumberColumn",
+                        HeaderText = "Invoice Number",
+                        DataPropertyName = "InvoiceNumber"
                     };
 
                     DataGridViewOrdersResults.Columns.Add(orderIdColumn);
@@ -225,6 +234,7 @@ namespace BusinessApplicationProject.View
                     DataGridViewOrdersResults.Columns.Add(customerNumberColumn);
                     DataGridViewOrdersResults.Columns.Add(customerFirstNameColumn);
                     DataGridViewOrdersResults.Columns.Add(customerLastNameColumn);
+                    DataGridViewOrdersResults.Columns.Add(invoiceNumberColumn); // ✅ Added Invoice Column
 
                     // ✅ Now set DataSource with OrderId included
                     DataGridViewOrdersResults.DataSource = orders.Select(o => new
@@ -234,7 +244,8 @@ namespace BusinessApplicationProject.View
                         o.Date,
                         CustomerNumber = o.CustomerDetails.CustomerNumber,
                         CustomerFirstName = o.CustomerDetails.FirstName,
-                        CustomerLastName = o.CustomerDetails.LastName
+                        CustomerLastName = o.CustomerDetails.LastName,
+                        InvoiceNumber = o.Invoices.Any() ? o.Invoices.First().InvoiceNumber : "No Invoice" // ✅ Get the first invoice or show "No Invoice"
                     }).ToList();
                 }
                 else
@@ -251,6 +262,7 @@ namespace BusinessApplicationProject.View
                 MessageBox.Show("An error occurred.");
             }
         }
+
 
         private Expression<Func<Order, bool>> CreateFilterFunction()
         {
@@ -374,8 +386,71 @@ namespace BusinessApplicationProject.View
 
         private void CmdShowInvoice_Click(object sender, EventArgs e)
         {
-            //change Form to Invoice with selected Order
+            if (DataGridViewOrdersResults.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Please select an order to view its invoice.");
+                return;
+            }
+
+            // ✅ Ensure OrderId column exists
+            if (!DataGridViewOrdersResults.Columns.Contains("OrderId"))
+            {
+                MessageBox.Show("Order ID column not found. Please refresh the data.");
+                return;
+            }
+
+            // ✅ Get selected Order ID
+            int selectedOrderId = Convert.ToInt32(DataGridViewOrdersResults.SelectedRows[0].Cells["OrderId"].Value);
+
+            // ✅ Search for an invoice using the order ID
+            using (var context = new AppDbContext())
+            {
+                var invoice = context.Invoices
+                    .Include(i => i.OrderInformations)
+                        .ThenInclude(o => o.Positions)  // ✅ Ensure Positions are loaded
+                            .ThenInclude(p => p.ArticleDetails)  // ✅ Ensure Article Details are loaded
+                    .Include(i => i.BillingAddress)
+                    .FirstOrDefault(i => i.OrderId == selectedOrderId);
+
+                if (invoice == null)
+                {
+                    MessageBox.Show("No invoice found for this order.", "Invoice Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                if (invoice.OrderInformations == null)
+                {
+                    MessageBox.Show($"Invoice {invoice.InvoiceNumber} has NO linked Order.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // ✅ Force Load Positions If Still Null
+                if (invoice.OrderInformations.Positions == null || !invoice.OrderInformations.Positions.Any())
+                {
+                    invoice.OrderInformations.Positions = context.Positions
+                        .Include(p => p.ArticleDetails)
+                        .Where(p => p.OrderId == invoice.OrderInformations.Id)
+                        .ToList();
+
+                    if (!invoice.OrderInformations.Positions.Any())
+                    {
+                        MessageBox.Show($"Order {invoice.OrderInformations.OrderNumber} has NO Positions.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+
+                // ✅ Open Invoice Tab and Display Invoice Information
+                if (UsrCtrlInvoices.instance != null)
+                {
+                    UsrCtrlInvoices.instance.UpdateEditProperties(invoice);
+                    UsrCtrlInvoices.instance.UpdateAdditionalDataGrids(invoice);
+                }
+            }
+
+
+
         }
+
+
 
         private void CmdDeleteOrder_Click(object sender, EventArgs e)
         {

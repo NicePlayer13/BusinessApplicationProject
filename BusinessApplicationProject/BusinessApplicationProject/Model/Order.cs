@@ -20,5 +20,6 @@ namespace BusinessApplicationProject.Model
         public required Customer CustomerDetails { get; set; }
 
         public required ICollection<Position> Positions { get; set; }
+        public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     }
 }

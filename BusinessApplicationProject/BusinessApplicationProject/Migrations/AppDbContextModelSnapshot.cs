@@ -208,6 +208,9 @@ namespace BusinessApplicationProject.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("OrderId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -224,6 +227,8 @@ namespace BusinessApplicationProject.Migrations
                     b.HasIndex("BillingAddressId");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("OrderId1");
 
                     b.ToTable("Invoices");
                 });
@@ -326,6 +331,10 @@ namespace BusinessApplicationProject.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("BusinessApplicationProject.Model.Order", null)
+                        .WithMany("Invoices")
+                        .HasForeignKey("OrderId1");
+
                     b.Navigation("BillingAddress");
 
                     b.Navigation("OrderInformations");
@@ -368,6 +377,8 @@ namespace BusinessApplicationProject.Migrations
 
             modelBuilder.Entity("BusinessApplicationProject.Model.Order", b =>
                 {
+                    b.Navigation("Invoices");
+
                     b.Navigation("Positions");
                 });
 #pragma warning restore 612, 618
