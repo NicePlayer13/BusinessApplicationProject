@@ -240,6 +240,7 @@
             CmdDeletePosition.TabIndex = 0;
             CmdDeletePosition.Text = "Delete Position";
             CmdDeletePosition.UseVisualStyleBackColor = true;
+            CmdDeletePosition.Click += CmdDeletePosition_Click;
             // 
             // CmdSavePositionChanges
             // 

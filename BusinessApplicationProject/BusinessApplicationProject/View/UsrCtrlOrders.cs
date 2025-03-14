@@ -1,5 +1,8 @@
-﻿using System.Data;
+﻿using System.ComponentModel;
+using System.Data;
 using System.Linq.Expressions;
+using System.Threading.Channels;
+using System.Windows.Forms;
 using BusinessApplicationProject.Controller;
 using BusinessApplicationProject.Migrations;
 using BusinessApplicationProject.Model;
@@ -291,7 +294,8 @@ namespace BusinessApplicationProject.View
             //Load all Orders into Grid
             UpdateSearchResults();
         }
-
+        // Member variable at the class level.
+        private Order _currentOrder;
         private void CmdEditSelectedOrder_Click(object sender, EventArgs e)
         {
             if (DataGridViewOrdersResults.SelectedRows.Count == 0)
@@ -334,6 +338,41 @@ namespace BusinessApplicationProject.View
                 {
                     MessageBox.Show("Order not found in database.");
                     return;
+                }
+                _currentOrder = selectedOrder; // Store the order for later update
+                                               // Bind the positions to the DataGridView directly using the order's Positions collection.
+                                               // After loading the order and storing it in _currentOrder:
+                                               // Bind the positions directly to the DataGridView using the actual Position objects.
+                if (_currentOrder.Positions != null && _currentOrder.Positions.Any())
+                {
+                    DataGridViewOrderPositions.DataSource = new BindingList<Position>(_currentOrder.Positions.ToList());
+                }
+                else
+                {
+                    DataGridViewOrderPositions.DataSource = null;
+                    MessageBox.Show("No positions found for this order.");
+                }
+                if (selectedOrder.Positions != null && selectedOrder.Positions.Any())
+                {
+                    // Prevent duplicate columns
+                    DataGridViewOrderPositions.DataSource = null;
+                    DataGridViewOrderPositions.Columns.Clear();
+
+                    // Bind Positions to DataGridViewOrderPositions (Fixed)
+                    DataGridViewOrderPositions.DataSource = selectedOrder.Positions
+                        .Select(p => new
+                        {
+                            PositionNumber = p.PositionNumber,
+                            Article = p.ArticleDetails?.ArticleNumber ?? "Unknown",
+                            ArticleName = p.ArticleDetails?.Name ?? "Unknown",
+                            Quantity = p.Quantity
+                        })
+                        .ToList();
+                }
+                else
+                {
+                    DataGridViewOrderPositions.DataSource = null;
+                    MessageBox.Show("No positions found for this order.");
                 }
 
                 // ✅ Populate order fields (with null-checks)
@@ -444,6 +483,21 @@ namespace BusinessApplicationProject.View
         }
 
 
+        private void LoadArticlesIntoDropdown()
+        {
+            using (var context = new AppDbContext())
+            {
+                // Retrieve the list of articles from the database.
+                List<Article> articles = context.Articles.ToList();
+
+                // Set the ComboBox's DataSource to the articles list.
+                CmbInputArticle.DataSource = articles;
+                // Display the ArticleNumber (or any other property like Name) in the dropdown.
+                CmbInputArticle.DisplayMember = "ArticleNumber";
+                // Optionally, use the Id as the ValueMember.
+                CmbInputArticle.ValueMember = "Id";
+            }
+        }
 
 
 
@@ -491,14 +545,12 @@ namespace BusinessApplicationProject.View
             bool articleFound = false;
             foreach (var item in CmbInputArticle.Items)
             {
-                // If the ComboBox contains Article objects, check the ArticleNumber property.
                 if (item is Article article && article.ArticleNumber.Equals(articleNumber, StringComparison.OrdinalIgnoreCase))
                 {
                     CmbInputArticle.SelectedItem = item;
                     articleFound = true;
                     break;
                 }
-                // If items are strings, compare directly.
                 else if (item is string str && str.Equals(articleNumber, StringComparison.OrdinalIgnoreCase))
                 {
                     CmbInputArticle.SelectedItem = item;
@@ -506,17 +558,22 @@ namespace BusinessApplicationProject.View
                     break;
                 }
             }
+
             if (!articleFound)
             {
                 // If no matching item was found, simply set the text.
                 CmbInputArticle.Text = articleNumber;
             }
-
+            LoadArticlesIntoDropdown();
             // Finally, show the group/panel that allows editing the selected position.
             GrpInformationSelectedPosition.Visible = true;
         }
 
 
+        private void RefreshPositionsGrid()
+        {
+            DataGridViewOrderPositions.DataSource = new BindingList<Position>(_currentOrder.Positions.ToList());
+        }
 
 
 
@@ -540,32 +597,85 @@ namespace BusinessApplicationProject.View
             }
         }
 
+
         private void CmdSavePositionChanges_Click(object sender, EventArgs e)
         {
-            //values to check if valid Inputs
-            int number;
-            bool isNumeric = int.TryParse(TxtInputOrderPositionArticleQuantity.Text, out number);
+            if (_currentOrder == null)
+            {
+                MessageBox.Show("No order is currently loaded.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            //checks if article is selected
+            // Validate and parse input values...
+            if (!int.TryParse(TxtInputPositionNumber.Text, out int newPositionNumber))
+            {
+                MessageBox.Show("Invalid position number.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (!int.TryParse(TxtInputOrderPositionArticleQuantity.Text, out int newQuantity))
+            {
+                MessageBox.Show("Invalid quantity.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             if (CmbInputArticle.SelectedItem == null)
             {
-                //if not send error
-                MessageBox.Show("Select a valid Article");
-
+                MessageBox.Show("Please select a valid article.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
-            else if (isNumeric && number >= 1 && number <= 1000)
+
+            Article selectedArticle = CmbInputArticle.SelectedItem as Article;
+            if (selectedArticle == null)
             {
-                //Throw warning
-                if (WarningUpdatedObject())
+                // Optionally, try to load it from the text if necessary.
+                using (var context = new AppDbContext())
                 {
-                    //Change the selected Position with the new values
+                    selectedArticle = context.Articles
+                        .FirstOrDefault(a => a.ArticleNumber.ToLower() == CmbInputArticle.Text.ToLower());
+                }
+                if (selectedArticle == null)
+                {
+                    MessageBox.Show("No valid article selected.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
             }
-            else
+
+            // Confirm update with the user.
+            if (!WarningUpdatedObject())
+                return;
+
+            // Locate the position to update in the order.
+            // You may choose to identify the position by its PositionNumber or another unique identifier.
+            Position posToUpdate = _currentOrder.Positions.FirstOrDefault(p => p.PositionNumber == newPositionNumber);
+            if (posToUpdate == null)
             {
-                MessageBox.Show("Select a valid Quantity of Articles");
+                MessageBox.Show("Position not found in the current order.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Update the position's properties.
+            posToUpdate.Quantity = newQuantity;
+            posToUpdate.ArticleId = selectedArticle.Id;
+            posToUpdate.ArticleDetails = selectedArticle;
+
+            // Save the changes.
+            try
+            {
+                using (var context = new AppDbContext())
+                {
+                    context.Attach(_currentOrder);
+                    context.SaveChanges();
+                }
+                MessageBox.Show("Position updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //ClearPositionEditingFields();
+                RefreshPositionsGrid();  // Method to rebind the grid to the updated positions.
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error updating position: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
 
         private void CmdSaveAsNewPosition_Click(object sender, EventArgs e)
         {
@@ -616,6 +726,56 @@ namespace BusinessApplicationProject.View
             else
             {
                 return false;
+            }
+        }
+
+        private void CmdDeletePosition_Click(object sender, EventArgs e)
+        {
+            // Ensure exactly one row is selected
+            if (DataGridViewOrderPositions.SelectedRows.Count != 1)
+            {
+                MessageBox.Show("Please select exactly one position to delete.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Retrieve the selected Position from the DataGridView's DataBoundItem
+            Position selectedPosition = DataGridViewOrderPositions.SelectedRows[0].DataBoundItem as Position;
+            if (selectedPosition == null)
+            {
+                MessageBox.Show("Selected position is invalid.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Confirm deletion with the user
+            if (!WarningDeletedObject())
+                return;
+
+            // Check if _currentOrder is available
+            if (_currentOrder == null)
+            {
+                MessageBox.Show("No order is currently loaded.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Remove the position from the order's Positions collection
+            _currentOrder.Positions.Remove(selectedPosition);
+
+            // Save changes to the database
+            try
+            {
+                using (var context = new AppDbContext())
+                {
+                    // Attach the current order so that EF Core tracks changes in its child entities
+                    context.Attach(_currentOrder);
+                    // SaveChanges() will pick up the removal of the position and delete it if cascade delete is configured
+                    context.SaveChanges();
+                }
+                MessageBox.Show("Position deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                RefreshPositionsGrid(); // Refresh the grid to reflect the change
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error deleting position: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
