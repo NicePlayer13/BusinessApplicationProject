@@ -103,6 +103,16 @@ Dann erstelle die Datenbank erneut:
 ```sh
 dotnet ef database update
 ```
+---
+
+## 🧱 Projektstruktur (Architektur)
+- `Model/` – Entitäten wie `Customer`, `Order`, `Article`
+- `Repository/` – Generische Repositories mit DbContext
+- `Controller/` – Businesslogik-Schicht mit DI
+- `View/` – WinForms-Bedienoberfläche
+- `Validation/` – Eingabeprüfungen mit Regex
+- `temporaryFiles/` – Hilfsklassen wie `Utils.cs`
+
 
 ---
 
@@ -112,7 +122,7 @@ Da es sich um ein Schulprojekt handelt, unterliegt dieses Projekt keiner spezifi
 ---
 
 ## 📩 Kontakt & Support
-📧 **Entwickler:** Khabat Rammo  
+📧 **Entwickler:** Khabat Rammo / Maximilian Degen
 🔗 **GitHub:** [github.com/NicePlayer13](https://github.com/NicePlayer13)
 
 ---
