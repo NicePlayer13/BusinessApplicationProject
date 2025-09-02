@@ -1,17 +1,22 @@
-﻿using BusinessApplicationProject.Controller;
+﻿using System.Linq.Expressions;
+using BusinessApplicationProject.Controller;
+using BusinessApplicationProject.Helpers;
 using BusinessApplicationProject.Model;
-using BusinessApplicationProject.Repository;
+using BusinessApplicationProject.Validation;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-
 namespace BusinessApplicationProject.View
 {
+
     public partial class UsrCtrlCustomers : UserControl
     {
+
         public static UsrCtrlCustomers instance;
 
         private readonly Controller<Customer> _customerController;
         private readonly Controller<Order> _orderController;
+
+        private readonly ErrorProvider _errors = new ErrorProvider();
+
 
         public UsrCtrlCustomers(
             Controller<Customer> customerController,
@@ -21,6 +26,9 @@ namespace BusinessApplicationProject.View
 
             _customerController = customerController;
             _orderController = orderController;
+            instance = this;
+            _errors.ContainerControl = this;
+            _errors.BlinkStyle = ErrorBlinkStyle.NeverBlink;
         }
 
 
@@ -46,18 +54,18 @@ namespace BusinessApplicationProject.View
         }
         #endregion
 
-        #region SearchUpdate
-        private Controller<Customer> customerController = new Controller<Customer>
-        {
-            GetContext = () => new AppDbContext(),
-            GetRepository = context => new Repository<Customer>(context)
-        };
+        //#region SearchUpdate
+        //private Controller<Customer> customerController = new Controller<Customer>
+        //{
+        //    GetContext = () => new AppDbContext(),
+        //    GetRepository = context => new Repository<Customer>(context)
+        //};
 
-        private Controller<Order> orderController = new Controller<Order>
-        {
-            GetContext = () => new AppDbContext(),
-            GetRepository = context => new TemporalRepository<Order>(context)
-        };
+        //private Controller<Order> orderController = new Controller<Order>
+        //{
+        //    GetContext = () => new AppDbContext(),
+        //    GetRepository = context => new TemporalRepository<Order>(context)
+        //};
 
         public void UpdateSearchResults()
         {
@@ -69,9 +77,9 @@ namespace BusinessApplicationProject.View
             try
             {
                 var filter = CreateFilterFunction();
-                List<Customer> customers = customerController
+                List<Customer> customers = _customerController
                     .Find(filter)
-                    .ToList(); // ✅ Make sure `Find(filter)` is returning `IQueryable<T>`
+                    .ToList();
 
 
                 if (customers.Count > 0)
@@ -140,12 +148,13 @@ namespace BusinessApplicationProject.View
                 (string.IsNullOrEmpty(TxtSearchCustomerNumber.Text) || customer.CustomerNumber.Contains(TxtSearchCustomerNumber.Text)) &&
                 (string.IsNullOrEmpty(TxtSearchCustomerFirstName.Text) || customer.FirstName.Contains(TxtSearchCustomerFirstName.Text)) &&
                 (string.IsNullOrEmpty(TxtSearchCustomerLastName.Text) || customer.LastName.Contains(TxtSearchCustomerLastName.Text)) &&
-                (string.IsNullOrEmpty(TxtSearchCustomerCountry.Text) || customer.CustomerAddress.Country.Contains(TxtSearchCustomerCountry.Text)) &&
-                (string.IsNullOrEmpty(TxtSearchCustomerCity.Text) || customer.CustomerAddress.City.Contains(TxtSearchCustomerCity.Text)) &&
-                (string.IsNullOrEmpty(TxtSearchCustomerAdress.Text) || customer.CustomerAddress.StreetAddress.Contains(TxtSearchCustomerAdress.Text)) &&
-                (string.IsNullOrEmpty(TxtSearchCustomerEmail.Text) || (customer.Email != null && customer.Email.Contains(TxtSearchCustomerEmail.Text)));
+                (string.IsNullOrEmpty(TxtSearchCustomerCountry.Text) || (customer.CustomerAddress != null && customer.CustomerAddress.Country.Contains(TxtSearchCustomerCountry.Text))) &&
+                (string.IsNullOrEmpty(TxtSearchCustomerCity.Text) || (customer.CustomerAddress != null && customer.CustomerAddress.City.Contains(TxtSearchCustomerCity.Text))) &&
+                (string.IsNullOrEmpty(TxtSearchCustomerAdress.Text) || (customer.CustomerAddress != null && customer.CustomerAddress.StreetAddress.Contains(TxtSearchCustomerAdress.Text))) &&
+                (string.IsNullOrEmpty(TxtSearchCustomerEmail.Text) || (!string.IsNullOrEmpty(customer.Email) && customer.Email.Contains(TxtSearchCustomerEmail.Text)));
         }
-        #endregion
+
+
 
         #region Customers
         private void EmptyFieldsCustomers()
@@ -166,16 +175,55 @@ namespace BusinessApplicationProject.View
         {
             EmptyFieldsCustomers();
 
+            using var context = new AppDbContext();
+            TxtInputCustomerNumber.Text = NextCustomerNumber(context);
+            TxtInputCustomerNumber.ReadOnly = true;
+
             DataGridViewCustomerOrders.DataSource = null;
             DataGridViewCustomerOrders.Columns.Clear();
-
             DataGridViewCustomersResults.DataSource = null;
             DataGridViewCustomersResults.Columns.Clear();
         }
 
+
+        private static string NextCustomerNumber(AppDbContext context)
+        {
+            var numbers = context.Customers
+                .Select(c => c.CustomerNumber)
+                .Where(n => n.StartsWith("CU") && n.Length >= 6)
+                .ToList();
+
+            int max = 0;
+            foreach (var n in numbers)
+                if (int.TryParse(n.Substring(2), out var num) && num > max)
+                    max = num;
+
+            return $"CU{(max + 1):D4}";
+        }
+
+
         private async void CmdSaveChangesCustomer_Click(object sender, EventArgs e)
         {
-            // Throw warning
+            // 1) VALIDATE (trim first)
+            string custNr = TxtInputCustomerNumber.Text?.Trim() ?? "";
+            string email = TxtInputCustomerEmail.Text?.Trim() ?? "";
+            string website = TxtInputCustomerWebsite.Text?.Trim() ?? "";
+            string pwd = TxtInputCustomerPassword.Text ?? "";
+
+            bool ok = true;
+            void SetErr(Control c, bool valid, string msg) { _errors.SetError(c, valid ? "" : msg); if (!valid) ok = false; }
+
+            SetErr(TxtInputCustomerNumber, CustomerValidation.CustomerNr(custNr), "Format: CU12345");
+            SetErr(TxtInputCustomerEmail, CustomerValidation.Email(email), "Invalid email");
+            if (!string.IsNullOrWhiteSpace(website))
+                SetErr(TxtInputCustomerWebsite, CustomerValidation.Website(website), "Invalid website");
+            if (!string.IsNullOrWhiteSpace(pwd))
+
+                SetErr(TxtInputCustomerPassword, CustomerValidation.Password(pwd), "Min 8 chars incl. Aa0-9");
+
+            if (!ok) return;
+
+            // 2) Confirm once
             if (!WarningUpdatedObject())
             {
                 UpdateSearchResults();
@@ -184,44 +232,62 @@ namespace BusinessApplicationProject.View
 
             try
             {
-                using var context = new AppDbContext(); // ✅ Use fresh context for tracking
-                var existingCustomer = context.Customers
-                    .Include(c => c.CustomerAddress) // ✅ Ensure CustomerAddress is loaded
-                    .FirstOrDefault(x => x.CustomerNumber == TxtInputCustomerNumber.Text);
-
-                if (existingCustomer != null) // ✅ UPDATE EXISTING CUSTOMER
+                using var context = new AppDbContext();
+                if (string.IsNullOrWhiteSpace(custNr))
                 {
-                    // ✅ Update Address (ensure changes are tracked)
-                    existingCustomer.CustomerAddress.StreetAddress = TxtInputCustomerAdress.Text;
-                    existingCustomer.CustomerAddress.ZipCode = TxtInputCustomerPostalCode.Text;
-                    existingCustomer.CustomerAddress.City = TxtInputCustomerCity.Text;
-                    existingCustomer.CustomerAddress.Country = TxtInputCustomerCountry.Text;
+                    custNr = NextCustomerNumber(context);
+                    TxtInputCustomerNumber.Text = custNr;
+                }
+                var existingCustomer = context.Customers
+                    .Include(c => c.CustomerAddress)
+                    .FirstOrDefault(x => x.CustomerNumber == custNr);
 
+                if (existingCustomer != null)
+                {
+                    // Address (create-or-update)
+                    if (existingCustomer.CustomerAddress == null)
+                    {
+                        existingCustomer.CustomerAddress = new Address
+                        {
+                            StreetAddress = TxtInputCustomerAdress.Text,
+                            ZipCode = TxtInputCustomerPostalCode.Text,
+                            City = TxtInputCustomerCity.Text,
+                            Country = TxtInputCustomerCountry.Text
+                        };
+                        context.Entry(existingCustomer.CustomerAddress).State = EntityState.Added;
+                    }
+                    else
+                    {
+                        existingCustomer.CustomerAddress.StreetAddress = TxtInputCustomerAdress.Text;
+                        existingCustomer.CustomerAddress.ZipCode = TxtInputCustomerPostalCode.Text;
+                        existingCustomer.CustomerAddress.City = TxtInputCustomerCity.Text;
+                        existingCustomer.CustomerAddress.Country = TxtInputCustomerCountry.Text;
+                        context.Entry(existingCustomer.CustomerAddress).State = EntityState.Modified;
+                    }
 
-                    context.Entry(existingCustomer.CustomerAddress).State = EntityState.Modified; // ✅ Mark Address as Modified
-
-                    // ✅ Update Customer
+                    // Customer fields
                     existingCustomer.FirstName = TxtInputCustomerFirstName.Text;
                     existingCustomer.LastName = TxtInputCustomerLastName.Text;
-                    existingCustomer.Email = TxtInputCustomerEmail.Text;
-                    existingCustomer.Website = TxtInputCustomerWebsite.Text;   // ✅ Fix: Add Website
-                    context.Entry(existingCustomer).State = EntityState.Modified; // ✅ Mark Customer as Modified
+                    existingCustomer.Email = email;
+                    existingCustomer.Website = string.IsNullOrWhiteSpace(website) ? null : website;
+                    context.Entry(existingCustomer).State = EntityState.Modified;
 
-                    // ✅ Save Changes
                     await context.SaveChangesAsync();
                     MessageBox.Show("Customer updated successfully!");
                     UpdateSearchResults();
                 }
-                else // ✅ CREATE NEW CUSTOMER
+                else
                 {
-                    var allCustomers = context.Customers.ToList();
-                    int maxCustNumber = allCustomers.Count > 0
-                        ? allCustomers.Select(n => int.Parse(n.CustomerNumber.Split('-')[1])).Max()
-                        : 0;
+                    // Generate new CU number
+                    int maxCustNumber = context.Customers
+                    .AsEnumerable() 
+                    .Select(n => int.TryParse(n.CustomerNumber?.Substring(2), out var number) ? number : 0)
+                    .Max();
 
-                    string custNumber = $"C-{(++maxCustNumber):D5}"; // Format as C-00001, C-00002...
+                        
+                    string newNumber = $"CU{(++maxCustNumber):D4}";
 
-                    // ✅ Create & Save New Address First
+                    // Create Address first
                     var newAddress = new Address
                     {
                         StreetAddress = TxtInputCustomerAdress.Text,
@@ -229,22 +295,21 @@ namespace BusinessApplicationProject.View
                         City = TxtInputCustomerCity.Text,
                         Country = TxtInputCustomerCountry.Text
                     };
-
                     await context.Addresses.AddAsync(newAddress);
-                    await context.SaveChangesAsync(); // ✅ Save to generate Address ID
+                    await context.SaveChangesAsync(); // ensure Id
 
-                    // ✅ Create New Customer
+                    // Create Customer
                     var newCustomer = new Customer
                     {
-                        CustomerNumber = custNumber,
-                        CustomerAddressId = newAddress.Id,  // ✅ Use generated Address ID
+                        CustomerNumber = newNumber,
+                        CustomerAddressId = newAddress.Id,
                         CustomerAddress = newAddress,
                         FirstName = TxtInputCustomerFirstName.Text,
                         LastName = TxtInputCustomerLastName.Text,
-                        Email = TxtInputCustomerEmail.Text
+                        Email = email,
+                        Website = string.IsNullOrWhiteSpace(website) ? null : website
                     };
 
-                    // ✅ Save Customer
                     await context.Customers.AddAsync(newCustomer);
                     await context.SaveChangesAsync();
 
@@ -262,36 +327,42 @@ namespace BusinessApplicationProject.View
             }
         }
 
-
         private void CmdDeleteCustomer_Click(object sender, EventArgs e)
         {
-            //Throw warning
-            if (WarningDeletedObject())
-            {
-                try
-                {
-                    var cust = customerController.FindSingle(x => x.CustomerNumber == TxtInputCustomerNumber.Text);
+            if (!WarningDeletedObject()) return;
 
-                    if (cust != null)
-                    {
-                        customerController.Remove(cust);
-                        MessageBox.Show("Customer deleted.");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Customer doesn't exits.");
-                    }
-                }
-                catch (TimeoutException)
+            var custNr = (TxtInputCustomerNumber?.Text ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(custNr))
+            {
+                MessageBox.Show("No customer number specified.");
+                return;
+            }
+
+            try
+            {
+                var cust = _customerController.FindSingle(x => x.CustomerNumber == custNr);
+                if (cust != null)
                 {
-                    MessageBox.Show("DB error occurred. Please check connection.");
+                    _customerController.Remove(cust);
+                    MessageBox.Show("Customer deleted.");
+                    UpdateSearchResults();
                 }
-                catch
+                else
                 {
-                    MessageBox.Show("An error occurred.");
+                    MessageBox.Show("Customer not found.");
                 }
             }
+            catch (TimeoutException)
+            {
+                MessageBox.Show("DB error occurred. Please check connection.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred: " + ex.Message);
+            }
         }
+
+
         #endregion
 
         #region Orders
@@ -346,29 +417,28 @@ namespace BusinessApplicationProject.View
 
         private void UpdateAdditionalInformations(Customer? selection)
         {
+
             UpdateInputFields(selection);
             UpdateOrderDataGridView(selection);
         }
 
         private void UpdateInputFields(Customer? customer)
         {
-            if (customer != null)
-            {
-                TxtInputCustomerNumber.Text = customer.CustomerNumber;
+            if (customer == null) return;
 
+            TxtInputCustomerNumber.Text = customer.CustomerNumber;
+            TxtInputCustomerFirstName.Text = customer.FirstName;
+            TxtInputCustomerLastName.Text = customer.LastName;
+            TxtInputCustomerEmail.Text = customer.Email ?? "";
+            TxtInputCustomerWebsite.Text = customer.Website ?? "";
 
-                TxtInputCustomerFirstName.Text = customer.FirstName;
-                TxtInputCustomerLastName.Text = customer.LastName;
-                TxtInputCustomerEmail.Text = customer.Email ?? "";
-
-
-                TxtInputCustomerAdress.Text = customer.CustomerAddress.StreetAddress;
-                TxtInputCustomerPostalCode.Text = customer.CustomerAddress.ZipCode;
-                TxtInputCustomerCity.Text = customer.CustomerAddress.City;
-                TxtInputCustomerCountry.Text = customer.CustomerAddress.Country;
-                TxtInputCustomerWebsite.Text = customer.Website ?? "";
-            }
+            var addr = customer.CustomerAddress;
+            TxtInputCustomerAdress.Text = addr?.StreetAddress ?? "";
+            TxtInputCustomerPostalCode.Text = addr?.ZipCode ?? "";
+            TxtInputCustomerCity.Text = addr?.City ?? "";
+            TxtInputCustomerCountry.Text = addr?.Country ?? "";
         }
+
 
         private void UpdateOrderDataGridView(Customer? customer)
         {
@@ -376,9 +446,10 @@ namespace BusinessApplicationProject.View
             {
                 try
                 {
-                    List<Order> orders = orderController
-                 .Find(x => x.CustomerDetails.Id == customer.Id)
-                 .ToList(); // ✅ Convert IQueryable<Order> to List<Order>
+                    List<Order> orders = _orderController
+                    .Find(x => x.CustomerDetails.Id == customer.Id)
+                       .ToList();
+
 
                     DataGridViewCustomerOrders.ClearSelection();
                     DataGridViewCustomerOrders.DataSource = null;
@@ -417,7 +488,54 @@ namespace BusinessApplicationProject.View
 
         private void CmdShowAllCustomers_Click(object sender, EventArgs e)
         {
+            TxtSearchCustomerAdress.Text = "";
+            TxtSearchCustomerCity.Text = "";
+            TxtSearchCustomerCountry.Text = "";
+            TxtSearchCustomerEmail.Text = "";
+            TxtSearchCustomerFirstName.Text = "";
+            TxtSearchCustomerLastName.Text = "";
+            TxtSearchCustomerNumber.Text = "";
+            TxtSearchCustomerWebsite.Text = "";
 
+            UpdateSearchResults();
+        }
+
+        private void TxtInputCustomerNumber_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CmdClearCustomer_Click(object sender, EventArgs e)
+        {
+            this.CmdClearCustomer.Click += new System.EventHandler(this.CmdClearCustomer_Click);
+
+            EmptyFieldsCustomers();
+
+            using var context = new AppDbContext();
+            TxtInputCustomerNumber.Text = NextCustomerNumber(context);
+            TxtInputCustomerNumber.ReadOnly = true;
+
+            DataGridViewCustomerOrders.DataSource = null;
+            DataGridViewCustomerOrders.Columns.Clear();
+            DataGridViewCustomersResults.DataSource = null;
+            DataGridViewCustomersResults.Columns.Clear();
+        }
+
+        private void CmdExportCustomers_Click_Click(object sender, EventArgs e)
+        {
+            var customers = _customerController.GetAll().ToList();
+
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = "XML files (*.xml)|*.xml",
+                Title = "Export Customers"
+            };
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                SerializationHelper.SerializeToXml(customers, dialog.FileName);
+                MessageBox.Show("Export successful!");
+            }
         }
     }
 }

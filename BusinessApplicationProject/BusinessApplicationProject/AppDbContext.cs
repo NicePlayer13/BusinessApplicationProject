@@ -42,6 +42,10 @@ namespace BusinessApplicationProject
        .WithMany()
        .HasForeignKey(g => g.ParentId)
        .IsRequired(false);
+           
+            modelBuilder.Entity<Customer>()
+                .HasIndex(c => c.CustomerNumber)
+                .IsUnique();
 
             modelBuilder.Entity<Customer>()
                 .HasOne(c => c.CustomerAddress)

@@ -77,6 +77,7 @@
             LblInfoSearchCustomerEmail = new Label();
             LblInfoSearchCustomerCountry = new Label();
             LblInfoSearchCustomerNumber = new Label();
+            CmdExportCustomers_Click = new Button();
             GrpResults.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)DataGridViewCustomersResults).BeginInit();
             GrpInformation.SuspendLayout();
@@ -172,6 +173,7 @@
             // 
             // GrpOrders
             // 
+            GrpOrders.Controls.Add(CmdExportCustomers_Click);
             GrpOrders.Controls.Add(DataGridViewCustomerOrders);
             GrpOrders.Controls.Add(CmdCopyOrderNumber);
             GrpOrders.ForeColor = SystemColors.ControlText;
@@ -243,6 +245,7 @@
             TxtInputCustomerNumber.ReadOnly = true;
             TxtInputCustomerNumber.Size = new Size(133, 16);
             TxtInputCustomerNumber.TabIndex = 2;
+            TxtInputCustomerNumber.TextChanged += TxtInputCustomerNumber_TextChanged;
             // 
             // TxtInputCustomerAdress
             // 
@@ -407,7 +410,7 @@
             CmdClearCustomer.TabIndex = 0;
             CmdClearCustomer.Text = "Clear / New";
             CmdClearCustomer.UseVisualStyleBackColor = true;
-            CmdClearCustomer.Click += CmdCreateNewCustomer_Click;
+            CmdClearCustomer.Click += CmdClearCustomer_Click;
             // 
             // GrpSearch
             // 
@@ -605,6 +608,16 @@
             LblInfoSearchCustomerNumber.TabIndex = 1;
             LblInfoSearchCustomerNumber.Text = "Customer Number";
             // 
+            // CmdExportCustomers_Click
+            // 
+            CmdExportCustomers_Click.Location = new Point(369, 356);
+            CmdExportCustomers_Click.Name = "CmdExportCustomers_Click";
+            CmdExportCustomers_Click.Size = new Size(124, 23);
+            CmdExportCustomers_Click.TabIndex = 3;
+            CmdExportCustomers_Click.Text = "Export Customers";
+            CmdExportCustomers_Click.UseVisualStyleBackColor = true;
+            CmdExportCustomers_Click.Click += CmdExportCustomers_Click_Click;
+            // 
             // UsrCtrlCustomers
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -676,5 +689,6 @@
         private Label LblDataGridCustomersNoResults;
         private TextBox TxtSearchCustomerWebsite;
         private Label label1;
+        private Button CmdExportCustomers_Click;
     }
 }

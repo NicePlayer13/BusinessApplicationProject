@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessApplicationProject.Model
 {/// <summary>
-/// Customer class
-/// </summary>
+ /// Customer class
+ /// </summary>
+
+    [Serializable]
     public class Customer
     {
         [Key]

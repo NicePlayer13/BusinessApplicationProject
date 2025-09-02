@@ -228,3 +228,5 @@ C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\
 C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\Tests\obj\Debug\net8.0-windows\Tests.pdb
 C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\Tests\obj\Debug\net8.0-windows\Tests.genruntimeconfig.cache
 C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\Tests\obj\Debug\net8.0-windows\ref\Tests.dll
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\Tests\bin\Debug\net8.0-windows\Autofac.dll
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\Tests\bin\Debug\net8.0-windows\Autofac.Extensions.DependencyInjection.dll
