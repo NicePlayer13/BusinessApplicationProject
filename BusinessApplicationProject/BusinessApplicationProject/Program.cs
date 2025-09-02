@@ -1,24 +1,28 @@
 using BusinessApplicationProject.View;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BusinessApplicationProject
 {
     internal static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
-                     
             ApplicationConfiguration.Initialize();
-            using (var context = new AppDbContext())
+
+            var serviceProvider = ServiceConfigurator.ConfigureServices();
+
+            using (var scope = serviceProvider.CreateScope())
             {
-                context.Database.Migrate(); 
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                context.Database.Migrate();
                 DataSeeder.SeedDatabase(context);
             }
+
+            // Beispiel: Controller injizieren
+            // var controller = serviceProvider.GetRequiredService<Controller<Customer>>();
+
             Application.Run(new FormMain());
         }
     }

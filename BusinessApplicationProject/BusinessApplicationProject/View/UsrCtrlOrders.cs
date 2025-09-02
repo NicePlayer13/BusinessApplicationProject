@@ -4,9 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Channels;
 using System.Windows.Forms;
 using BusinessApplicationProject.Controller;
-using BusinessApplicationProject.Migrations;
 using BusinessApplicationProject.Model;
-using BusinessApplicationProject.Repository;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -20,12 +18,14 @@ namespace BusinessApplicationProject.View
         private FormMain _mainForm;  // ✅ Store reference to FormMain
 
         // ✅ Pass FormMain reference in constructor
-        public UsrCtrlOrders(FormMain mainForm)
+        public UsrCtrlOrders(FormMain mainForm, Controller<Order> orderController)
         {
             InitializeComponent();
-            _mainForm = mainForm;  // ✅ Assign FormMain instance
-            instance = this;  // ✅ Assign instance
+            _mainForm = mainForm;
+            _orderController = orderController;
+            instance = this;
         }
+
 
         #region Search
         private void CmdSearchCustomers_Click(object sender, EventArgs e)
@@ -33,12 +33,13 @@ namespace BusinessApplicationProject.View
             // ✅ Ensure filters are applied
             var filter = CreateFilterFunction();
 
-            List<Order> orders = orderController
-                .Find(filter)
-                .Include(o => o.CustomerDetails) // ✅ Load Customer
-                .Include(o => o.Positions) // ✅ Load Order Positions
-                .ThenInclude(p => p.ArticleDetails) // ✅ Load Article Details
-                .ToList();
+            List<Order> orders = _orderController
+    .Find(filter)
+    .Include(o => o.CustomerDetails)
+    .Include(o => o.Positions)
+    .ThenInclude(p => p.ArticleDetails)
+    .ToList();
+
 
             if (orders.Count > 0)
             {
@@ -157,12 +158,8 @@ namespace BusinessApplicationProject.View
         }
 
 
-        private Controller<Order> orderController = new Controller<Order>
-        {
+        private readonly Controller<Order> _orderController;
 
-            GetContext = () => new AppDbContext(),
-            GetRepository = context => new Repository<Order>(context)
-        };
 
         public void UpdateSearchResults()
         {
@@ -176,13 +173,13 @@ namespace BusinessApplicationProject.View
 
             try
             {
-                List<Order> orders = orderController
-                    .Find(filter)
-                    .Include(o => o.CustomerDetails) // ✅ Load Customer
-                    .Include(o => o.Positions) // ✅ Load Order Positions
-                    .ThenInclude(p => p.ArticleDetails) // ✅ Load Article Details
-                    .Include(o => o.Invoices) // ✅ Load related invoices
-                    .ToList();
+                List<Order> orders = _orderController
+    .Find(filter)
+    .Include(o => o.CustomerDetails)
+    .Include(o => o.Positions)
+    .ThenInclude(p => p.ArticleDetails)
+    .ToList();
+
 
                 if (orders.Count > 0)
                 {

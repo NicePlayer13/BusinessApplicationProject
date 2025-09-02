@@ -145,3 +145,5 @@ C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\
 C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.pdb
 C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\BusinessApplicationProject.genruntimeconfig.cache
 C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\obj\Debug\net8.0-windows\ref\BusinessApplicationProject.dll
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\bin\Debug\net8.0-windows\Autofac.dll
+C:\Users\RKH\source\repos\BusinessApplicationProject\BusinessApplicationProject\BusinessApplicationProject\bin\Debug\net8.0-windows\Autofac.Extensions.DependencyInjection.dll

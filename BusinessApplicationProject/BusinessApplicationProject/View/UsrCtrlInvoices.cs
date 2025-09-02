@@ -9,31 +9,43 @@ namespace BusinessApplicationProject.View
 {
     public partial class UsrCtrlInvoices : UserControl
     {
-        public static UsrCtrlInvoices instance = new();
+        public static UsrCtrlInvoices instance;
 
-        public UsrCtrlInvoices()
+        private readonly Controller<Invoice> _invoiceController;
+        private readonly Controller<Order> _orderController;
+        private readonly TemporalController<Article> _articleController;
+
+        public UsrCtrlInvoices(
+            Controller<Invoice> invoiceController,
+            Controller<Order> orderController,
+            TemporalController<Article> articleController)
         {
-
             InitializeComponent();
+
+            _invoiceController = invoiceController;
+            _orderController = orderController;
+            _articleController = articleController;
+
             DatPckInvoiceDateFrom.MaxDate = DateTime.UtcNow.AddYears(1);
             DatPckInvoiceDateTo.MaxDate = DateTime.UtcNow.AddYears(1);
             DatPckInvoiceDateTo.Value = DatPckInvoiceDateTo.MaxDate;
 
             CmbEditPaymentMethod.Items.AddRange(new object[]
             {
-                PaymentInformationConstants.PaymentMethods.CreditCard,
-                PaymentInformationConstants.PaymentMethods.PayPal,
-                PaymentInformationConstants.PaymentMethods.SamsungPay,
-                PaymentInformationConstants.PaymentMethods.ApplePay
+        PaymentInformationConstants.PaymentMethods.CreditCard,
+        PaymentInformationConstants.PaymentMethods.PayPal,
+        PaymentInformationConstants.PaymentMethods.SamsungPay,
+        PaymentInformationConstants.PaymentMethods.ApplePay
             });
             CmbEditPaymentStatus.Items.AddRange(new object[]
             {
-                PaymentInformationConstants.PaymentStatuses.Pending,
-                PaymentInformationConstants.PaymentStatuses.Paid,
-                PaymentInformationConstants.PaymentStatuses.Cancelled
+        PaymentInformationConstants.PaymentStatuses.Pending,
+        PaymentInformationConstants.PaymentStatuses.Paid,
+        PaymentInformationConstants.PaymentStatuses.Cancelled
             });
             UpdateEditProperties(null);
         }
+
 
         private Controller<Invoice> invoiceController = new Controller<Invoice>
         {

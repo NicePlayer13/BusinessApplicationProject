@@ -8,27 +8,22 @@ namespace BusinessApplicationProject.View
 {
     public partial class UsrCtrlArticles : UserControl
     {
-        public static UsrCtrlArticles instance = new();
+        public static UsrCtrlArticles instance;
 
-        public UsrCtrlArticles()
+        private readonly Controller<Article> _articleController;
+        private readonly Controller<ArticleGroup> _articleGroupController;
+
+        public UsrCtrlArticles(
+            Controller<Article> articleController,
+            Controller<ArticleGroup> articleGroupController)
         {
             InitializeComponent();
+
+            _articleController = articleController;
+            _articleGroupController = articleGroupController;
+
             LoadArticleGroups();
         }
-
-        private Controller<ArticleGroup> articleGroupController = new Controller<ArticleGroup>
-        {
-            GetContext = () => new AppDbContext(),
-            GetRepository = context => new Repository<ArticleGroup>(context)
-        };
-
-        private Controller<Article> articleController = new Controller<Article>
-        {
-            GetContext = () => new AppDbContext(),
-            GetRepository = context => new Repository<Article>(context)
-        };
-
-
 
         public void LoadArticleGroups()
         {
@@ -39,8 +34,7 @@ namespace BusinessApplicationProject.View
             CmbInputArticleGroupParent.Items.Add(string.Empty);
             CmbSearchArticleGroup.Items.Add(string.Empty);
 
-            // ✅ Fix: Convert IQueryable<ArticleGroup> to List<ArticleGroup> with .ToList()
-            List<ArticleGroup> articleGroups = articleGroupController.GetAll().ToList();
+            List<ArticleGroup> articleGroups = _articleGroupController.GetAll().ToList();
 
             foreach (ArticleGroup group in articleGroups)
             {
@@ -140,7 +134,7 @@ namespace BusinessApplicationProject.View
                 // ✅ Create the correct filter for ArticleGroup (not Article)
                 Expression<Func<ArticleGroup, bool>> filter = ag => ag.Parent != null;
 
-                List<ArticleGroup> articleGroups = articleGroupController
+                List<ArticleGroup> articleGroups = _articleGroupController
                     .Find(filter) // ✅ Corrected: Now uses ArticleGroup filter
                     .Include(ag => ag.Parent) // ✅ Apply Include() before ToList()
                     .ToList();

@@ -8,12 +8,21 @@ namespace BusinessApplicationProject.View
 {
     public partial class UsrCtrlCustomers : UserControl
     {
-        public static UsrCtrlCustomers instance = new();
+        public static UsrCtrlCustomers instance;
 
-        public UsrCtrlCustomers()
+        private readonly Controller<Customer> _customerController;
+        private readonly Controller<Order> _orderController;
+
+        public UsrCtrlCustomers(
+            Controller<Customer> customerController,
+            Controller<Order> orderController)
         {
             InitializeComponent();
+
+            _customerController = customerController;
+            _orderController = orderController;
         }
+
 
         #region Search
         private void CmdSearchCustomers_Click(object sender, EventArgs e)
