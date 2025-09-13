@@ -198,7 +198,7 @@ namespace BusinessApplicationProject.View
                 if (int.TryParse(n.Substring(2), out var num) && num > max)
                     max = num;
 
-            return $"CU{(max + 1):D4}";
+            return $"CU{(max + 1):D5}";
         }
 
 
@@ -285,7 +285,7 @@ namespace BusinessApplicationProject.View
                     .Max();
 
                         
-                    string newNumber = $"CU{(++maxCustNumber):D4}";
+                    string newNumber = $"CU{(++maxCustNumber):D5}";
 
                     // Create Address first
                     var newAddress = new Address
@@ -524,18 +524,69 @@ namespace BusinessApplicationProject.View
         private void CmdExportCustomers_Click_Click(object sender, EventArgs e)
         {
             var customers = _customerController.GetAll().ToList();
+            //Save password as Hash 
 
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Filter = "XML files (*.xml)|*.xml",
-                Title = "Export Customers"
+                Filter = "XML files (*.xml)|*.xml|JSON files (*.json)|*.json",
+                Title = "Export Customers",
+                DefaultExt = "xml"
             };
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                SerializationHelper.SerializeToXml(customers, dialog.FileName);
-                MessageBox.Show("Export successful!");
+                string ext = Path.GetExtension(dialog.FileName).ToLowerInvariant();
+                try
+                {
+                    if (ext == ".json")
+                        SerializationHelper.SerializeToJson(customers, dialog.FileName);
+                    else
+                        SerializationHelper.SerializeToXml(customers, dialog.FileName);
+
+                    MessageBox.Show("Export successful!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Export failed: {ex.Message}");
+                }
             }
         }
+
+        private void CmdImportCustomers_Click_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Filter = "XML files (*.xml)|*.xml|JSON files (*.json)|*.json",
+                Title = "Import Customers",
+                DefaultExt = "xml"
+            };
+
+            
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    var ext = Path.GetExtension(dialog.FileName).ToLowerInvariant();
+                    List<Customer> customers;
+                    if (ext == ".json")
+                        customers = SerializationHelper.DeserializeFromJson<Customer>(dialog.FileName);
+                    else
+                        customers = SerializationHelper.DeserializeFromXml<Customer>(dialog.FileName);
+
+                    // Insert logik
+                    // use CmdSaveChangesCustomer_Click, CU Number existing -> update, CU Number empty or new -> Add new CU
+
+                    MessageBox.Show("Import erfolgreich!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Import fehlgeschlagen: {ex.Message}");
+                }
+            }
+
+            
+        }
+
     }
 }

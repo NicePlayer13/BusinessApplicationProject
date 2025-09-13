@@ -34,7 +34,7 @@ namespace BusinessApplicationProject
             // Customers
             var cust1 = new Customer()
             {
-                CustomerNumber = "CU-00001",
+                CustomerNumber = "CU00001",
                 CustomerAddressId = addr1.Id,
                 CustomerAddress = addr1,
                 FirstName = "John",
@@ -44,7 +44,7 @@ namespace BusinessApplicationProject
 
             var cust2 = new Customer()
             {
-                CustomerNumber = "CU-00002",
+                CustomerNumber = "CU00002",
                 CustomerAddressId = addr2.Id,
                 CustomerAddress = addr2,
                 FirstName = "John",
