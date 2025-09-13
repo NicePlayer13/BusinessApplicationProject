@@ -3,13 +3,12 @@
 namespace BusinessApplicationProject.Repository
 {
     /// <summary>
-    /// Generic repository interface
+    /// Interface for temporal repositories supporting point-in-time queries.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Entity type.</typeparam>
     public interface ITemporalRepository<T> : IRepository<T> where T : class
     {
-        public IEnumerable<T> GetAllAsOf(DateTime timestamp);
-
-        public IEnumerable<T> FindAsOf(DateTime timestamp, Expression<Func<T, bool>> condition);
+        IEnumerable<T> GetAllAsOf(DateTime timestamp);
+        IEnumerable<T> FindAsOf(DateTime timestamp, Expression<Func<T, bool>> condition);
     }
 }

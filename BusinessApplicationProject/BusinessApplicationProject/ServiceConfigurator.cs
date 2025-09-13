@@ -1,28 +1,28 @@
 ﻿using BusinessApplicationProject.Controller;
-using BusinessApplicationProject.Model;
+using BusinessApplicationProject;
 using BusinessApplicationProject.Repository;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BusinessApplicationProject
 {
+    /// <summary>
+    /// Configures dependency injection for the application.
+    /// </summary>
     public static class ServiceConfigurator
     {
         public static IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
 
-            // DbContext
             services.AddScoped<AppDbContext>();
 
-            // Generic repository & controller
+            // Register generic controllers and repositories
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped(typeof(Controller<>));
-
-            // Temporal repository & controller
             services.AddScoped(typeof(ITemporalRepository<>), typeof(TemporalRepository<>));
             services.AddScoped(typeof(TemporalController<>));
 
-            // Optional: custom repository
+            // Register custom repositories
             services.AddScoped<ArticleGroupRepository>();
 
             return services.BuildServiceProvider();

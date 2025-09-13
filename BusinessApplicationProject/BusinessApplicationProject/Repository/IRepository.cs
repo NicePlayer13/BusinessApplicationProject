@@ -3,9 +3,9 @@
 namespace BusinessApplicationProject.Repository
 {
     /// <summary>
-    /// Generic repository interface
+    /// Generic repository interface defining common data access operations.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Entity type.</typeparam>
     public interface IRepository<T> where T : class
     {
         List<T> GetAll();

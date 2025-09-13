@@ -1,13 +1,13 @@
-﻿using BusinessApplicationProject.Model;
+﻿using BusinessApplicationProject;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace BusinessApplicationProject.Repository
 {
     /// <summary>
-    /// Generic repository
+    /// Generic repository providing CRUD operations and navigation property resolution.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Entity type.</typeparam>
     public class Repository<T> : IRepository<T> where T : class
     {
         protected readonly AppDbContext Context;
@@ -19,120 +19,83 @@ namespace BusinessApplicationProject.Repository
 
         public List<T> GetAll()
         {
-            if (Context.Database.CanConnect())
-            {
-                var query = AddIncludes(typeof(T), Context.Set<T>());
-                return query.ToList();
-            }
-            else
-            {
+            if (!Context.Database.CanConnect())
                 throw new TimeoutException();
-            }
+
+            var query = AddIncludes(typeof(T), Context.Set<T>());
+            return query.ToList();
         }
 
         public List<T> Find(Expression<Func<T, bool>> condition)
         {
-            if (Context.Database.CanConnect())
-            {
-                var query = AddIncludes(typeof(T), Context.Set<T>());
-                return [.. query.Where(condition)];
-            }
-            else
-            {
+            if (!Context.Database.CanConnect())
                 throw new TimeoutException();
-            }
+
+            var query = AddIncludes(typeof(T), Context.Set<T>());
+            return query.Where(condition).ToList();
         }
 
         public async Task AddAsync(T entity)
         {
-            if (await Context.Database.CanConnectAsync())
-            {
-                await Context.Set<T>().AddAsync(entity);
-                await Context.SaveChangesAsync();
-            }
-            else
-            {
+            if (!await Context.Database.CanConnectAsync())
                 throw new TimeoutException();
-            }
 
+            await Context.Set<T>().AddAsync(entity);
+            await Context.SaveChangesAsync();
         }
 
         public void Remove(T entity)
         {
-            if (Context.Database.CanConnect())
-            {
-                Context.Set<T>().Remove(entity);
-                Context.SaveChanges();
-            }
-            else
-            {
+            if (!Context.Database.CanConnect())
                 throw new TimeoutException();
-            }
+
+            Context.Set<T>().Remove(entity);
+            Context.SaveChanges();
         }
 
         public void Update(T entity)
         {
-            if (Context.Database.CanConnect())
-            {
-                Context.Set<T>().Update(entity);
-                Context.SaveChanges();
-            }
-            else
-            {
+            if (!Context.Database.CanConnect())
                 throw new TimeoutException();
-            }
+
+            Context.Set<T>().Update(entity);
+            Context.SaveChanges();
         }
 
+        /// <summary>
+        /// Adds navigation property includes based on the entity type.
+        /// </summary>
         private IQueryable<T> AddIncludes(Type type, IQueryable<T> query)
         {
-            var includes = GetAllNavigationPropertyNames(typeof(T));
-
-            foreach (var propertyName in includes)
+            foreach (var propertyName in GetAllNavigationPropertyNames(type))
             {
                 query = query.Include(propertyName);
             }
-
             return query;
         }
 
+        /// <summary>
+        /// Returns relevant navigation property names for inclusion.
+        /// </summary>
         private List<string> GetAllNavigationPropertyNames(Type type)
         {
-            var res = new List<string>();
-
-            switch (type.Name)
+            return type.Name switch
             {
-                case nameof(Article):
-                    res.Add("Group.Parent");
-                    break;
-
-                case nameof(ArticleGroup):
-                    res.Add("Parent");
-                    break;
-
-                case nameof(Customer):
-                    res.Add("CustomerAddress");
-                    break;
-
-                case nameof(Invoice):
-                    res.Add("BillingAddress");
-                    res.Add("OrderInformations.CustomerDetails.CustomerAddress");
-                    res.Add("OrderInformations.Positions.ArticleDetails.Group.Parent");
-                    break;
-
-                case nameof(Order):
-                    res.Add("CustomerDetails.CustomerAddress");
-                    res.Add("Positions.ArticleDetails.Group.Parent");
-                    break;
-
-                case nameof(Position):
-                    res.Add("ArticleDetails.Group.Parent");
-                    break;
-
-                default:
-                    break;
-            }
-
-            return res;
+                nameof(Article) => ["Group.Parent"],
+                nameof(ArticleGroup) => ["Parent"],
+                nameof(Customer) => ["CustomerAddress"],
+                nameof(Invoice) => [
+                    "BillingAddress",
+                    "OrderInformations.CustomerDetails.CustomerAddress",
+                    "OrderInformations.Positions.ArticleDetails.Group.Parent"
+                ],
+                nameof(Order) => [
+                    "CustomerDetails.CustomerAddress",
+                    "Positions.ArticleDetails.Group.Parent"
+                ],
+                nameof(Position) => ["ArticleDetails.Group.Parent"],
+                _ => []
+            };
         }
     }
 }

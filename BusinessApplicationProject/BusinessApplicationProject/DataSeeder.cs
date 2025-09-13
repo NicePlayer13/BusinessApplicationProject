@@ -1,6 +1,4 @@
-﻿using BusinessApplicationProject.Model;
-
-namespace BusinessApplicationProject
+﻿namespace BusinessApplicationProject.Migrations
 {
     /// <summary>
     /// Class to seed the database with some initial data.
@@ -153,7 +151,7 @@ namespace BusinessApplicationProject
 
 
             // Invoices
-            var inv1 = new Invoice
+            var inv1 = new BusinessApplicationProject.Invoice
             {
                 InvoiceNumber = "I-00001",
                 BillingAddressId = addr1.Id,
@@ -165,7 +163,7 @@ namespace BusinessApplicationProject
                 OrderInformations = ord1
             };
 
-            var inv2 = new Invoice
+            var inv2 = new BusinessApplicationProject.Invoice
             {
                 InvoiceNumber = "I-00002",
                 BillingAddressId = addr2.Id,

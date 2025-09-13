@@ -1,11 +1,12 @@
 ﻿using BusinessApplicationProject.Controller;
-using BusinessApplicationProject.Model;
+using BusinessApplicationProject;
 using BusinessApplicationProject.Repository;
 
 namespace BusinessApplicationProject.View
 {
     public partial class FormMain : Form
     {
+        // Navigation view enum
         public enum View
         {
             Articles,
@@ -13,6 +14,8 @@ namespace BusinessApplicationProject.View
             Invoices,
             Customers
         }
+
+        // Controllers
         private UsrCtrlOrders ordersControl;
 
         private readonly Controller<Order> _orderController = new Controller<Order>
@@ -33,7 +36,6 @@ namespace BusinessApplicationProject.View
             GetRepository = ctx => new Repository<ArticleGroup>(ctx)
         };
 
-
         private readonly Controller<Customer> _customerController = new Controller<Customer>
         {
             GetContext = () => new AppDbContext(),
@@ -45,7 +47,6 @@ namespace BusinessApplicationProject.View
             GetContext = () => new AppDbContext(),
             GetRepository = ctx => new TemporalRepository<Order>(ctx)
         };
-
 
         private readonly Controller<Invoice> _invoiceController = new Controller<Invoice>
         {
@@ -69,9 +70,9 @@ namespace BusinessApplicationProject.View
         public FormMain()
         {
             InitializeComponent();
-
             this.StartPosition = FormStartPosition.CenterScreen;
 
+            // Initialize UserControls with their respective controllers
             ordersControl = new UsrCtrlOrders(this, _orderController);
             UsrCtrlOrders.instance = ordersControl;
 
@@ -79,36 +80,20 @@ namespace BusinessApplicationProject.View
             UsrCtrlInvoices.instance = new UsrCtrlInvoices(_invoiceController, _invoiceOrderController, _articleTemporalController);
             UsrCtrlCustomers.instance = new UsrCtrlCustomers(_customerController, _temporalOrderController);
 
-
+            // Default view
             ToggleView(View.Customers, CmdCustomers);
         }
 
+        // Navigation button handlers
+        private void CmdArticles_Click(object sender, EventArgs e) => ToggleView(View.Articles, sender);
+        private void CmdCustomers_Click(object sender, EventArgs e) => ToggleView(View.Customers, sender);
+        private void CmdOrders_Click(object sender, EventArgs e) => ToggleView(View.Orders, sender);
+        public void CmdInvoices_Click(object sender, EventArgs e) => ToggleView(View.Invoices, sender);
+        private void CmdCloseProgram_Click(object sender, EventArgs e) => Application.Exit();
 
-        private void CmdArticles_Click(object sender, EventArgs e)
-        {
-            ToggleView(View.Articles, sender);
-        }
-
-        private void CmdCustomers_Click(object sender, EventArgs e)
-        {
-            ToggleView(View.Customers, sender);
-        }
-
-        private void CmdOrders_Click(object sender, EventArgs e)
-        {
-            ToggleView(View.Orders, sender);
-        }
-
-        public void CmdInvoices_Click(object sender, EventArgs e)
-        {
-            ToggleView(View.Invoices, sender);
-        }
-
-        private void CmdCloseProgram_Click(object sender, EventArgs e)
-        {
-            Application.Exit();
-        }
-
+        /// <summary>
+        /// Switch to a different main view.
+        /// </summary>
         public void ToggleView(View nextView, object sender)
         {
             EnableAllNavigationButtons();
@@ -134,6 +119,9 @@ namespace BusinessApplicationProject.View
             }
         }
 
+        /// <summary>
+        /// Enables all navigation buttons (reset state).
+        /// </summary>
         private void EnableAllNavigationButtons()
         {
             CmdArticles.Enabled = true;
@@ -143,6 +131,9 @@ namespace BusinessApplicationProject.View
             CmdCloseProgram.Enabled = true;
         }
 
+        /// <summary>
+        /// Loads the selected view (UserControl) into the main panel.
+        /// </summary>
         public void SwapViewInstance(UserControl instance)
         {
             if (!PnlMainView.Controls.Contains(instance))

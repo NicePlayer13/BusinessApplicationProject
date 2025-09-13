@@ -1,10 +1,11 @@
-﻿using BusinessApplicationProject.Model;
+﻿using BusinessApplicationProject;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessApplicationProject
 {
     /// <summary>
     /// The database context for the application.
+    /// Configures entity relationships and enables temporal tables.
     /// </summary>
     public class AppDbContext : DbContext
     {
@@ -18,68 +19,74 @@ namespace BusinessApplicationProject
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=BusinessApplicationProjectDB;Trusted_Connection=True;");
-
+            optionsBuilder.UseSqlServer(
+                "Server=(localdb)\\mssqllocaldb;Database=BusinessApplicationProjectDB;Trusted_Connection=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // Article - ArticleGroup relationship
             modelBuilder.Entity<Article>()
-        .HasOne(a => a.Group)
-        .WithMany(g => g.Articles)
-        .HasForeignKey(a => a.GroupId)
-        .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(a => a.Group)
+                .WithMany(g => g.Articles)
+                .HasForeignKey(a => a.GroupId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ArticleGroup - ArticleGroup parent relationship
+            modelBuilder.Entity<ArticleGroup>()
+                .HasMany(g => g.Articles)
+                .WithOne(a => a.Group)
+                .HasForeignKey(a => a.GroupId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ArticleGroup>()
-        .HasMany(g => g.Articles) // ✅ One-to-Many Relationship
-        .WithOne(a => a.Group) // Each Article belongs to ONE Group
-        .HasForeignKey(a => a.GroupId)
-        .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
-            modelBuilder.Entity<ArticleGroup>()
-       .HasOne(g => g.Parent)
-       .WithMany()
-       .HasForeignKey(g => g.ParentId)
-       .IsRequired(false);
-           
+                .HasOne(g => g.Parent)
+                .WithMany()
+                .HasForeignKey(g => g.ParentId)
+                .IsRequired(false);
+
+            // Unique customer number
             modelBuilder.Entity<Customer>()
                 .HasIndex(c => c.CustomerNumber)
                 .IsUnique();
 
+            // Customer - Address relationship
             modelBuilder.Entity<Customer>()
                 .HasOne(c => c.CustomerAddress)
                 .WithMany()
                 .HasForeignKey(c => c.CustomerAddressId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Order - Customer relationship
             modelBuilder.Entity<Order>()
-     .HasOne(o => o.CustomerDetails)
-     .WithMany()
-     .HasForeignKey(o => o.CustomerId)
-     .OnDelete(DeleteBehavior.Restrict); // ✅ Ensure no cascade delete issue
+                .HasOne(o => o.CustomerDetails)
+                .WithMany()
+                .HasForeignKey(o => o.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
+            // Order - Positions relationship
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.Positions)
                 .WithOne(p => p.OrderDetails)
                 .HasForeignKey(p => p.OrderId)
-                .OnDelete(DeleteBehavior.Cascade);  // ✅ Ensure correct delete behavior
+                .OnDelete(DeleteBehavior.Cascade);
 
-
+            // Invoice - Address and Order relationship
             modelBuilder.Entity<Invoice>()
                 .HasOne(i => i.BillingAddress)
                 .WithMany()
                 .HasForeignKey(i => i.BillingAddressId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Invoice>()
                 .HasOne(i => i.OrderInformations)
                 .WithMany()
                 .HasForeignKey(i => i.OrderId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);
 
-
+            // Position - Article and Order relationship
             modelBuilder.Entity<Position>()
                 .HasOne(p => p.ArticleDetails)
                 .WithMany()
@@ -90,9 +97,10 @@ namespace BusinessApplicationProject
                 .WithMany(o => o.Positions)
                 .HasForeignKey(p => p.OrderId);
 
-            // Keep this ONLY if you explicitly need temporal tables
+            // Enable temporal table support
             modelBuilder.Entity<Address>().ToTable(nameof(Addresses), b => b.IsTemporal());
             modelBuilder.Entity<Article>().ToTable(nameof(Articles), b => b.IsTemporal());
+            modelBuilder.Entity<Customer>().ToTable(nameof(Customers), b => b.IsTemporal());
         }
     }
 }

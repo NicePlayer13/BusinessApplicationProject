@@ -46,11 +46,12 @@
             LblInfoSearchArticleName = new Label();
             LblInfoSearchArticleGroup = new Label();
             GrpInformationArticleGroup = new GroupBox();
+            button5 = new Button();
             TxtInputArticleGroupName = new TextBox();
             GrpInformationArticleGroupName = new Label();
             GrpInformationArticleGroupParent = new Label();
-            button4 = new Button();
-            button6 = new Button();
+            CmdDeleteGroup = new Button();
+            CmdSaveNewArticleGroup = new Button();
             CmbInputArticleGroupParent = new ComboBox();
             GrpInformationArticle = new GroupBox();
             TxtInputArticleNumber = new TextBox();
@@ -60,10 +61,13 @@
             LblInfoArticleName = new Label();
             LblInfoArticleNumber = new Label();
             LblInfoArticleGroup = new Label();
-            button3 = new Button();
+            CmdDeleteArticle = new Button();
             button2 = new Button();
             button1 = new Button();
             CmbInputArticleGroup = new ComboBox();
+            CmdImportArticles = new Button();
+            CmdExportArticles = new Button();
+            DtpExportArticlesTime = new DateTimePicker();
             GrpResults.SuspendLayout();
             GrpSearch.SuspendLayout();
             GrpInformationArticleGroup.SuspendLayout();
@@ -225,11 +229,12 @@
             // 
             // GrpInformationArticleGroup
             // 
+            GrpInformationArticleGroup.Controls.Add(button5);
             GrpInformationArticleGroup.Controls.Add(TxtInputArticleGroupName);
             GrpInformationArticleGroup.Controls.Add(GrpInformationArticleGroupName);
             GrpInformationArticleGroup.Controls.Add(GrpInformationArticleGroupParent);
-            GrpInformationArticleGroup.Controls.Add(button4);
-            GrpInformationArticleGroup.Controls.Add(button6);
+            GrpInformationArticleGroup.Controls.Add(CmdDeleteGroup);
+            GrpInformationArticleGroup.Controls.Add(CmdSaveNewArticleGroup);
             GrpInformationArticleGroup.Controls.Add(CmbInputArticleGroupParent);
             GrpInformationArticleGroup.Location = new Point(555, 129);
             GrpInformationArticleGroup.Name = "GrpInformationArticleGroup";
@@ -237,6 +242,13 @@
             GrpInformationArticleGroup.TabIndex = 3;
             GrpInformationArticleGroup.TabStop = false;
             GrpInformationArticleGroup.Text = "Information selected Article Group";
+            // 
+            // button5
+            // 
+            button5.Location = new Point(0, 0);
+            button5.Name = "button5";
+            button5.Size = new Size(75, 23);
+            button5.TabIndex = 0;
             // 
             // TxtInputArticleGroupName
             // 
@@ -266,25 +278,25 @@
             GrpInformationArticleGroupParent.TabIndex = 1;
             GrpInformationArticleGroupParent.Text = "Group Parent";
             // 
-            // button4
+            // CmdDeleteGroup
+            //// 
+            //CmdDeleteGroup.Location = new Point(412, 89);
+            //CmdDeleteGroup.Name = "CmdDeleteGroup";
+            //CmdDeleteGroup.Size = new Size(110, 23);
+            //CmdDeleteGroup.TabIndex = 0;
+            //CmdDeleteGroup.Text = "Delete Group";
+            //CmdDeleteGroup.UseVisualStyleBackColor = true;
+            //CmdDeleteGroup.Click += button4_Click;
+            //// 
+            // CmdSaveNewArticleGroup
             // 
-            button4.Location = new Point(412, 89);
-            button4.Name = "button4";
-            button4.Size = new Size(110, 23);
-            button4.TabIndex = 0;
-            button4.Text = "Delete Group";
-            button4.UseVisualStyleBackColor = true;
-            button4.Click += button4_Click;
-            // 
-            // button6
-            // 
-            button6.Location = new Point(6, 89);
-            button6.Name = "button6";
-            button6.Size = new Size(156, 23);
-            button6.TabIndex = 0;
-            button6.Text = "Save as new Article Group";
-            button6.UseVisualStyleBackColor = true;
-            button6.Click += button6_Click;
+            //CmdSaveNewArticleGroup.Location = new Point(6, 89);
+            //CmdSaveNewArticleGroup.Name = "CmdSaveNewArticleGroup";
+            //CmdSaveNewArticleGroup.Size = new Size(156, 23);
+            //CmdSaveNewArticleGroup.TabIndex = 0;
+            //CmdSaveNewArticleGroup.Text = "Save as new Article Group";
+            //CmdSaveNewArticleGroup.UseVisualStyleBackColor = true;
+            //CmdSaveNewArticleGroup.Click += button6_Click;
             // 
             // CmbInputArticleGroupParent
             // 
@@ -307,7 +319,7 @@
             GrpInformationArticle.Controls.Add(LblInfoArticleName);
             GrpInformationArticle.Controls.Add(LblInfoArticleNumber);
             GrpInformationArticle.Controls.Add(LblInfoArticleGroup);
-            GrpInformationArticle.Controls.Add(button3);
+            GrpInformationArticle.Controls.Add(CmdDeleteArticle);
             GrpInformationArticle.Controls.Add(button2);
             GrpInformationArticle.Controls.Add(button1);
             GrpInformationArticle.Controls.Add(CmbInputArticleGroup);
@@ -385,16 +397,16 @@
             LblInfoArticleGroup.TabIndex = 1;
             LblInfoArticleGroup.Text = "Article Group";
             // 
-            // button3
-            // 
-            button3.Location = new Point(412, 89);
-            button3.Name = "button3";
-            button3.Size = new Size(110, 23);
-            button3.TabIndex = 0;
-            button3.Text = "Delete Article";
-            button3.UseVisualStyleBackColor = true;
-            button3.Click += button3_Click;
-            // 
+            // CmdDeleteArticle
+            //// 
+            CmdDeleteArticle.Location = new Point(412, 89);
+            CmdDeleteArticle.Name = "CmdDeleteArticle";
+            CmdDeleteArticle.Size = new Size(110, 23);
+            CmdDeleteArticle.TabIndex = 0;
+            CmdDeleteArticle.Text = "Delete Article";
+            CmdDeleteArticle.UseVisualStyleBackColor = true;
+            CmdDeleteArticle.Click += CmdDeleteGroup_Click;
+            //// 
             // button2
             // 
             button2.Location = new Point(307, 89);
@@ -403,17 +415,17 @@
             button2.TabIndex = 0;
             button2.Text = "Save changes";
             button2.UseVisualStyleBackColor = true;
-            button2.Click += button2_Click;
-            // 
-            // button1
-            // 
+            button2.Click += CmdSaveArticleChanges_Click;
+            //// 
+            //// button1
+            //// 
             button1.Location = new Point(6, 89);
             button1.Name = "button1";
             button1.Size = new Size(156, 23);
             button1.TabIndex = 0;
             button1.Text = "Save as new Article";
             button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            button1.Click += CmdSaveNewArticle_Click;
             // 
             // CmbInputArticleGroup
             // 
@@ -427,10 +439,40 @@
             CmbInputArticleGroup.Sorted = true;
             CmbInputArticleGroup.TabIndex = 3;
             // 
+            // CmdImportArticles
+            // 
+            CmdImportArticles.Location = new Point(851, 607);
+            CmdImportArticles.Name = "CmdImportArticles";
+            CmdImportArticles.Size = new Size(110, 23);
+            CmdImportArticles.TabIndex = 4;
+            CmdImportArticles.Text = "Import Article";
+            CmdImportArticles.UseVisualStyleBackColor = true;
+            CmdImportArticles.Click += CmdImportArticles_Click_Click;
+            // 
+            // CmdExportArticles
+            // 
+            CmdExportArticles.Location = new Point(967, 607);
+            CmdExportArticles.Name = "CmdExportArticles";
+            CmdExportArticles.Size = new Size(110, 23);
+            CmdExportArticles.TabIndex = 5;
+            CmdExportArticles.Text = "Export Articles";
+            CmdExportArticles.UseVisualStyleBackColor = true;
+            CmdExportArticles.Click += CmdExportArticles_Click_Click;
+            // 
+            // DtpExportArticlesTime
+            // 
+            DtpExportArticlesTime.Location = new Point(716, 607);
+            DtpExportArticlesTime.Name = "DtpExportArticlesTime";
+            DtpExportArticlesTime.Size = new Size(119, 23);
+            DtpExportArticlesTime.TabIndex = 6;
+            // 
             // UsrCtrlArticles
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(DtpExportArticlesTime);
+            Controls.Add(CmdExportArticles);
+            Controls.Add(CmdImportArticles);
             Controls.Add(GrpInformationArticleGroup);
             Controls.Add(GrpInformationArticle);
             Controls.Add(GrpSearch);
@@ -466,8 +508,8 @@
         private TextBox TxtInputArticleGroupName;
         private Label GrpInformationArticleGroupName;
         private Label GrpInformationArticleGroupParent;
-        private Button button4;
-        private Button button6;
+        private Button CmdDeleteGroup;
+        private Button CmdSaveNewArticleGroup;
         private ComboBox CmbInputArticleGroupParent;
         private GroupBox GrpInformationArticle;
         private TextBox TxtInputArticleNumber;
@@ -477,11 +519,15 @@
         private Label LblInfoArticleName;
         private Label LblInfoArticleNumber;
         private Label LblInfoArticleGroup;
-        private Button button3;
+        private Button CmdDeleteArticle;
         private Button button2;
         private Button button1;
         private ComboBox CmbInputArticleGroup;
         private ComboBox CmbSearchArticleGroup;
         private Label LblSearchArticlesNoResult;
+        private Button button5;
+        private Button CmdImportArticles;
+        private Button CmdExportArticles;
+        private DateTimePicker DtpExportArticlesTime;
     }
 }

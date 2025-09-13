@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BusinessApplicationProject.Model
+namespace BusinessApplicationProject
 {
     /// <summary>
-    /// Invoice class
+    /// Represents a billing invoice tied to an order and billing address.
     /// </summary>
     public class Invoice
     {
@@ -12,18 +12,23 @@ namespace BusinessApplicationProject.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+
         public required string InvoiceNumber { get; set; }
         public DateTime DueDate { get; set; }
+
 
         public required int BillingAddressId { get; set; }
         [ForeignKey(nameof(BillingAddressId))]
         public required Address BillingAddress { get; set; }
 
+
         public double Discount { get; set; }
         public double TaxPercentage { get; set; }
 
+
         public required string PaymentMethod { get; set; }
         public required string PaymentStatus { get; set; }
+
 
         public required int OrderId { get; set; }
         [ForeignKey(nameof(OrderId))]

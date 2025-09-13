@@ -1,12 +1,12 @@
 ﻿using System.Linq.Expressions;
 using BusinessApplicationProject.Controller;
-using BusinessApplicationProject.Helpers;
-using BusinessApplicationProject.Model;
-using BusinessApplicationProject.Validation;
 using Microsoft.EntityFrameworkCore;
+using BusinessApplicationProject.Helpers;
 namespace BusinessApplicationProject.View
 {
-
+    /// <summary>
+    /// Interaction logic for UsrCtrlCustomers.xaml
+    /// </summary>
     public partial class UsrCtrlCustomers : UserControl
     {
 
@@ -53,19 +53,6 @@ namespace BusinessApplicationProject.View
             TxtSearchCustomerWebsite.Text = string.Empty;
         }
         #endregion
-
-        //#region SearchUpdate
-        //private Controller<Customer> customerController = new Controller<Customer>
-        //{
-        //    GetContext = () => new AppDbContext(),
-        //    GetRepository = context => new Repository<Customer>(context)
-        //};
-
-        //private Controller<Order> orderController = new Controller<Order>
-        //{
-        //    GetContext = () => new AppDbContext(),
-        //    GetRepository = context => new TemporalRepository<Order>(context)
-        //};
 
         public void UpdateSearchResults()
         {
@@ -204,7 +191,6 @@ namespace BusinessApplicationProject.View
 
         private async void CmdSaveChangesCustomer_Click(object sender, EventArgs e)
         {
-            // 1) VALIDATE (trim first)
             string custNr = TxtInputCustomerNumber.Text?.Trim() ?? "";
             string email = TxtInputCustomerEmail.Text?.Trim() ?? "";
             string website = TxtInputCustomerWebsite.Text?.Trim() ?? "";
@@ -218,12 +204,10 @@ namespace BusinessApplicationProject.View
             if (!string.IsNullOrWhiteSpace(website))
                 SetErr(TxtInputCustomerWebsite, CustomerValidation.Website(website), "Invalid website");
             if (!string.IsNullOrWhiteSpace(pwd))
-
                 SetErr(TxtInputCustomerPassword, CustomerValidation.Password(pwd), "Min 8 chars incl. Aa0-9");
 
             if (!ok) return;
 
-            // 2) Confirm once
             if (!WarningUpdatedObject())
             {
                 UpdateSearchResults();
@@ -238,13 +222,13 @@ namespace BusinessApplicationProject.View
                     custNr = NextCustomerNumber(context);
                     TxtInputCustomerNumber.Text = custNr;
                 }
+
                 var existingCustomer = context.Customers
                     .Include(c => c.CustomerAddress)
                     .FirstOrDefault(x => x.CustomerNumber == custNr);
 
                 if (existingCustomer != null)
                 {
-                    // Address (create-or-update)
                     if (existingCustomer.CustomerAddress == null)
                     {
                         existingCustomer.CustomerAddress = new Address
@@ -265,29 +249,24 @@ namespace BusinessApplicationProject.View
                         context.Entry(existingCustomer.CustomerAddress).State = EntityState.Modified;
                     }
 
-                    // Customer fields
                     existingCustomer.FirstName = TxtInputCustomerFirstName.Text;
                     existingCustomer.LastName = TxtInputCustomerLastName.Text;
                     existingCustomer.Email = email;
                     existingCustomer.Website = string.IsNullOrWhiteSpace(website) ? null : website;
-                    context.Entry(existingCustomer).State = EntityState.Modified;
 
+                    if (!string.IsNullOrWhiteSpace(pwd))
+                    {
+                        existingCustomer.PasswordHash = PasswordHasher.Hash(pwd);
+                    }
+
+                    context.Entry(existingCustomer).State = EntityState.Modified;
                     await context.SaveChangesAsync();
                     MessageBox.Show("Customer updated successfully!");
-                    UpdateSearchResults();
                 }
                 else
                 {
-                    // Generate new CU number
-                    int maxCustNumber = context.Customers
-                    .AsEnumerable() 
-                    .Select(n => int.TryParse(n.CustomerNumber?.Substring(2), out var number) ? number : 0)
-                    .Max();
+                    string newNumber = NextCustomerNumber(context);
 
-                        
-                    string newNumber = $"CU{(++maxCustNumber):D5}";
-
-                    // Create Address first
                     var newAddress = new Address
                     {
                         StreetAddress = TxtInputCustomerAdress.Text,
@@ -296,9 +275,8 @@ namespace BusinessApplicationProject.View
                         Country = TxtInputCustomerCountry.Text
                     };
                     await context.Addresses.AddAsync(newAddress);
-                    await context.SaveChangesAsync(); // ensure Id
+                    await context.SaveChangesAsync();
 
-                    // Create Customer
                     var newCustomer = new Customer
                     {
                         CustomerNumber = newNumber,
@@ -307,15 +285,19 @@ namespace BusinessApplicationProject.View
                         FirstName = TxtInputCustomerFirstName.Text,
                         LastName = TxtInputCustomerLastName.Text,
                         Email = email,
-                        Website = string.IsNullOrWhiteSpace(website) ? null : website
+                        Website = string.IsNullOrWhiteSpace(website) ? null : website,
+                        PasswordHash = string.IsNullOrWhiteSpace(pwd) ? null : PasswordHasher.Hash(pwd)
                     };
 
                     await context.Customers.AddAsync(newCustomer);
                     await context.SaveChangesAsync();
 
+                    TxtInputCustomerNumber.Text = newNumber;
                     MessageBox.Show("New customer added successfully!");
-                    UpdateSearchResults();
                 }
+
+                TxtInputCustomerPassword.Text = "";
+                UpdateSearchResults();
             }
             catch (TimeoutException)
             {
@@ -326,6 +308,7 @@ namespace BusinessApplicationProject.View
                 MessageBox.Show("An error occurred: " + ex.Message);
             }
         }
+
 
         private void CmdDeleteCustomer_Click(object sender, EventArgs e)
         {
@@ -368,7 +351,7 @@ namespace BusinessApplicationProject.View
         #region Orders
         private void CmdOpenSelectedOrder_Click(object sender, EventArgs e)
         {
-            var selection = Utils.GetSelectedItem<Order>(DataGridViewCustomerOrders);
+            var selection = Utility.GetSelectedItem<Order>(DataGridViewCustomerOrders);
 
             if (selection != null)
             {
@@ -411,7 +394,7 @@ namespace BusinessApplicationProject.View
 
         private void DataGridViewCustomersResults_SelectionChanged(object sender, EventArgs e)
         {
-            Customer? selection = Utils.GetSelectedItem<Customer>(DataGridViewCustomersResults);
+            Customer? selection = Utility.GetSelectedItem<Customer>(DataGridViewCustomersResults);
             UpdateAdditionalInformations(selection);
         }
 
@@ -524,13 +507,12 @@ namespace BusinessApplicationProject.View
         private void CmdExportCustomers_Click_Click(object sender, EventArgs e)
         {
             var customers = _customerController.GetAll().ToList();
-            //Save password as Hash 
 
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Filter = "XML files (*.xml)|*.xml|JSON files (*.json)|*.json",
+                Filter = "JSON files (*.json)|*.json|XML files (*.xml)|*.xml",
                 Title = "Export Customers",
-                DefaultExt = "xml"
+                DefaultExt = "json"
             };
 
             if (dialog.ShowDialog() == DialogResult.OK)
@@ -539,9 +521,16 @@ namespace BusinessApplicationProject.View
                 try
                 {
                     if (ext == ".json")
+                    {
+                        // Optional: remove password hash if you don't want to export it
+                        // var exportList = customers.Select(c => new { ... }) 
+                        // Or just use as-is if keeping hash
                         SerializationHelper.SerializeToJson(customers, dialog.FileName);
+                    }
                     else
+                    {
                         SerializationHelper.SerializeToXml(customers, dialog.FileName);
+                    }
 
                     MessageBox.Show("Export successful!");
                 }
@@ -552,6 +541,7 @@ namespace BusinessApplicationProject.View
             }
         }
 
+
         private void CmdImportCustomers_Click_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog
@@ -561,32 +551,102 @@ namespace BusinessApplicationProject.View
                 DefaultExt = "xml"
             };
 
-            
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
 
-            if (dialog.ShowDialog() == DialogResult.OK)
+            try
             {
-                try
-                {
-                    var ext = Path.GetExtension(dialog.FileName).ToLowerInvariant();
-                    List<Customer> customers;
-                    if (ext == ".json")
-                        customers = SerializationHelper.DeserializeFromJson<Customer>(dialog.FileName);
-                    else
-                        customers = SerializationHelper.DeserializeFromXml<Customer>(dialog.FileName);
+                var ext = Path.GetExtension(dialog.FileName).ToLowerInvariant();
+                List<Customer> customers;
 
-                    // Insert logik
-                    // use CmdSaveChangesCustomer_Click, CU Number existing -> update, CU Number empty or new -> Add new CU
+                if (ext == ".json")
+                    customers = SerializationHelper.DeserializeFromJson<Customer>(dialog.FileName);
+                else
+                    customers = SerializationHelper.DeserializeFromXml<Customer>(dialog.FileName);
 
-                    MessageBox.Show("Import erfolgreich!");
-                }
-                catch (Exception ex)
+                int imported = 0, updated = 0, failed = 0;
+
+                using var context = new AppDbContext();
+
+                foreach (var c in customers)
                 {
-                    MessageBox.Show($"Import fehlgeschlagen: {ex.Message}");
+                    try
+                    {
+                        if (string.IsNullOrWhiteSpace(c.CustomerNumber))
+                            throw new Exception("Customer number missing");
+
+                        var existing = context.Customers
+                            .Include(cu => cu.CustomerAddress)
+                            .FirstOrDefault(x => x.CustomerNumber == c.CustomerNumber);
+
+                        if (existing != null)
+                        {
+                            // Update existing
+                            existing.FirstName = c.FirstName;
+                            existing.LastName = c.LastName;
+                            existing.Email = c.Email;
+                            existing.Website = c.Website;
+
+                            if (c.CustomerAddress == null)
+                                throw new Exception("Address missing");
+
+                            existing.CustomerAddress.StreetAddress = c.CustomerAddress.StreetAddress;
+                            existing.CustomerAddress.ZipCode = c.CustomerAddress.ZipCode;
+                            existing.CustomerAddress.City = c.CustomerAddress.City;
+                            existing.CustomerAddress.Country = c.CustomerAddress.Country;
+
+                            context.Entry(existing).State = EntityState.Modified;
+                            updated++;
+                        }
+                        else
+                        {
+                            // Create new address (ignore Id!)
+                            var newAddress = new Address
+                            {
+                                StreetAddress = c.CustomerAddress?.StreetAddress,
+                                ZipCode = c.CustomerAddress?.ZipCode,
+                                City = c.CustomerAddress?.City,
+                                Country = c.CustomerAddress?.Country
+                            };
+
+                            context.Addresses.Add(newAddress);
+                            context.SaveChanges(); // Generate address ID
+
+                            // Create new customer (ignore Id + use correct foreign key)
+                            var newCustomer = new Customer
+                            {
+                                CustomerNumber = c.CustomerNumber,
+                                FirstName = c.FirstName,
+                                LastName = c.LastName,
+                                Email = c.Email,
+                                Website = c.Website,
+                                CustomerAddressId = newAddress.Id
+                            };
+
+                            context.Customers.Add(newCustomer);
+                            imported++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        failed++;
+                        MessageBox.Show($"Error importing customer '{c.CustomerNumber}': {ex.Message}", "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
+
+                context.SaveChanges();
+
+                MessageBox.Show($"Import complete:\n\nNew: {imported}\nUpdated: {updated}\nFailed: {failed}",
+                    "Import Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                UpdateSearchResults(); // optional refresh
             }
-
-            
+            catch (Exception ex)
+            {
+                MessageBox.Show($"General import failed: {ex.Message}", "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
 
     }
 }

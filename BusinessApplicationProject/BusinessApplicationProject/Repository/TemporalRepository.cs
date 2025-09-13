@@ -4,9 +4,9 @@ using System.Linq.Expressions;
 namespace BusinessApplicationProject.Repository
 {
     /// <summary>
-    /// Generic repository
+    /// Temporal repository implementation for querying point-in-time historical data.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Entity type.</typeparam>
     public class TemporalRepository<T> : Repository<T>, ITemporalRepository<T> where T : class
     {
         public TemporalRepository(AppDbContext context) : base(context) { }
@@ -18,7 +18,7 @@ namespace BusinessApplicationProject.Repository
 
         public IEnumerable<T> FindAsOf(DateTime timestamp, Expression<Func<T, bool>> condition)
         {
-            return Context.Set<T>().TemporalAsOf(timestamp).Where<T>(condition);
+            return Context.Set<T>().TemporalAsOf(timestamp).Where(condition);
         }
     }
 }

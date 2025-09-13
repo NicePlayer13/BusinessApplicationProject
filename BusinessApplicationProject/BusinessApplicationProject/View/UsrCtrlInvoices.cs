@@ -1,5 +1,6 @@
 ﻿using BusinessApplicationProject.Controller;
-using BusinessApplicationProject.Model;
+using BusinessApplicationProject.Migrations;
+using BusinessApplicationProject;
 using BusinessApplicationProject.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -7,6 +8,9 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace BusinessApplicationProject.View
 {
+    /// <summary>
+    /// Interaction logic for UsrCtrlInvoices
+    /// </summary>
     public partial class UsrCtrlInvoices : UserControl
     {
         public static UsrCtrlInvoices instance;
@@ -87,11 +91,11 @@ namespace BusinessApplicationProject.View
                 var filter = customFilter ?? CreateFilterFunction();
                 List<Invoice> invoices = invoiceController
                     .Find(filter)
-                    .Include(i => i.OrderInformations) // ✅ Include Order
-                        .ThenInclude(o => o.Positions) // ✅ Ensure Positions are loaded
-                            .ThenInclude(p => p.ArticleDetails) // ✅ Ensure ArticleDetails are loaded
-                    .Include(i => i.BillingAddress) // ✅ Include Billing Address
-                    .ToList(); // ✅ Convert to List
+                    .Include(i => i.OrderInformations) 
+                        .ThenInclude(o => o.Positions) 
+                            .ThenInclude(p => p.ArticleDetails) 
+                    .Include(i => i.BillingAddress)
+                    .ToList(); 
 
 
                 if (invoices.Count > 0)
@@ -202,7 +206,7 @@ namespace BusinessApplicationProject.View
 
         private void CmdCopyCustomerNumber_Click(object sender, EventArgs e)
         {
-            var selection = Utils.GetSelectedItem<Invoice>(DataGridViewInvoices);
+            var selection = Utility.GetSelectedItem<Invoice>(DataGridViewInvoices);
 
             if (selection != null)
             {
@@ -218,7 +222,7 @@ namespace BusinessApplicationProject.View
 
         private void CmdCopyOrderNumber_Click(object sender, EventArgs e)
         {
-            var selection = Utils.GetSelectedItem<Invoice>(DataGridViewInvoices);
+            var selection = Utility.GetSelectedItem<Invoice>(DataGridViewInvoices);
 
             if (selection != null)
             {
@@ -243,7 +247,7 @@ namespace BusinessApplicationProject.View
                 ChkEditUseCustomerAddress.Checked = false;
                 ChkEditUseCustomerAddress.Enabled = false;
 
-                // ✅ Ensure BillingAddress is not null before accessing its properties
+                // Ensure BillingAddress is not null before accessing its properties
                 if (invoice.BillingAddress != null)
                 {
                     TxtEditStreetAddress.Text = invoice.BillingAddress.StreetAddress;
@@ -253,7 +257,7 @@ namespace BusinessApplicationProject.View
                 }
                 else
                 {
-                    // ✅ Provide default values to avoid NullReferenceException
+                    // Provide default values to avoid NullReferenceException
                     TxtEditStreetAddress.Text = "No Address";
                     TxtEditZipCode.Text = "N/A";
                     TxtEditCity.Text = "N/A";
@@ -268,7 +272,7 @@ namespace BusinessApplicationProject.View
             }
             else
             {
-                // ✅ Clear fields if invoice is null
+                //  Clear fields if invoice is null
                 TxtEditInvoiceNumber.Text = "";
                 TxtEditOrderNumber.Text = "";
                 TxtEditOrderNumber.Enabled = true;
@@ -290,7 +294,7 @@ namespace BusinessApplicationProject.View
         }
         public void SetInvoiceData(List<Invoice> invoices)
         {
-            // This method sets the DataSource of the invoice grid to the given invoices list.
+
             DataGridViewInvoices.AutoGenerateColumns = false;
             DataGridViewInvoices.DataSource = invoices;
         }
@@ -398,7 +402,7 @@ namespace BusinessApplicationProject.View
                 if (pos == null)
                 {
                     MessageBox.Show("A null position was encountered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    continue;  // Skip to the next position
+                    continue;  
                 }
 
                 if (pos.ArticleDetails == null)
@@ -495,7 +499,7 @@ namespace BusinessApplicationProject.View
                 if (pos == null)
                 {
                     MessageBox.Show("A null position was encountered.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    continue;  // Skip to the next position
+                    continue;  
                 }
 
                 if (pos.ArticleDetails == null)
@@ -571,7 +575,7 @@ namespace BusinessApplicationProject.View
 
         private void CmdCopyArticleNumber_Click(object sender, EventArgs e)
         {
-            object? selection = Utils.GetSelectedItem<object>(DataGridViewOrderPositions);
+            object? selection = Utility.GetSelectedItem<object>(DataGridViewOrderPositions);
 
             if (selection != null)
             {
@@ -589,7 +593,7 @@ namespace BusinessApplicationProject.View
                 {
                     MessageBox.Show($"Property '{propertyName}' not found.");
                 }
-                //var artNo = ((Article)selection).ArticleNumber;
+             
             }
             else
             {
@@ -682,9 +686,9 @@ namespace BusinessApplicationProject.View
                             billingAddress = order.CustomerDetails.CustomerAddress;
                         }
 
-                        var invoices = invoiceController.GetAll().ToList(); // ✅ Convert IQueryable<Invoice> to List<Invoice>
+                        var invoices = invoiceController.GetAll().ToList(); 
 
-                        int maxInvNumber = (invoices.Any()) // ✅ Use .Any() instead of .Count > 0
+                        int maxInvNumber = (invoices.Any()) 
                             ? invoices.Select(n => int.Parse(n.InvoiceNumber.Split('-')[1])).Max()
                             : 0;
 

@@ -1,23 +1,20 @@
 ﻿using System.ComponentModel;
 using System.Data;
 using System.Linq.Expressions;
-using System.Threading.Channels;
-using System.Windows.Forms;
 using BusinessApplicationProject.Controller;
-using BusinessApplicationProject.Model;
 using Microsoft.EntityFrameworkCore;
 
-
-
+/// <summary>
+/// Namespace for the user control handling Orders.
+/// </summary>
 namespace BusinessApplicationProject.View
 {
     public partial class UsrCtrlOrders : UserControl
     {
         public static UsrCtrlOrders instance;
 
-        private FormMain _mainForm;  // ✅ Store reference to FormMain
+        private FormMain _mainForm;
 
-        // ✅ Pass FormMain reference in constructor
         public UsrCtrlOrders(FormMain mainForm, Controller<Order> orderController)
         {
             InitializeComponent();
@@ -30,7 +27,7 @@ namespace BusinessApplicationProject.View
         #region Search
         private void CmdSearchCustomers_Click(object sender, EventArgs e)
         {
-            // ✅ Ensure filters are applied
+            // Ensure filters are applied
             var filter = CreateFilterFunction();
 
             List<Order> orders = _orderController
@@ -50,7 +47,7 @@ namespace BusinessApplicationProject.View
                 DataGridViewOrdersResults.Columns.Clear();
                 DataGridViewOrdersResults.AutoGenerateColumns = false;
 
-                // ✅ Ensure OrderId column exists
+                // Ensure OrderId column exists
                 DataGridViewTextBoxColumn orderIdColumn = new DataGridViewTextBoxColumn
                 {
                     Name = "OrderId",
@@ -117,17 +114,17 @@ namespace BusinessApplicationProject.View
                 DataGridViewOrdersResults.Columns.Add(totalPositionsColumn);
                 DataGridViewOrdersResults.Columns.Add(positionNumberColumn);
 
-                // ✅ Now set DataSource with additional Order details
+                //  Now set DataSource with additional Order details
                 DataGridViewOrdersResults.DataSource = orders.Select(o => new
                 {
-                    o.Id,  // ✅ Add Order ID (used for selection)
+                    o.Id,  //  Add Order ID (used for selection)
                     o.OrderNumber,
                     o.Date,
                     CustomerDetails_CustomerNumber = o.CustomerDetails?.CustomerNumber ?? "N/A",
                     CustomerDetails_FirstName = o.CustomerDetails?.FirstName ?? "N/A",
                     CustomerDetails_LastName = o.CustomerDetails?.LastName ?? "N/A",
                     TotalPositions = o.Positions.Count,
-                    PositionNumber = o.Positions.FirstOrDefault()?.PositionNumber ?? 0  // ✅ Show first position number
+                    PositionNumber = o.Positions.FirstOrDefault()?.PositionNumber ?? 0  //  Show first position number
                 }).ToList();
             }
             else
@@ -183,7 +180,7 @@ namespace BusinessApplicationProject.View
 
                 if (orders.Count > 0)
                 {
-                    // ✅ Ensure OrderId column exists
+                    //  Ensure OrderId column exists
                     DataGridViewTextBoxColumn orderIdColumn = new DataGridViewTextBoxColumn
                     {
                         Name = "OrderId",
@@ -227,7 +224,7 @@ namespace BusinessApplicationProject.View
                         DataPropertyName = "CustomerDetails.LastName"
                     };
 
-                    // ✅ New: Add Invoice Number Column
+                    //  New: Add Invoice Number Column
                     DataGridViewTextBoxColumn invoiceNumberColumn = new DataGridViewTextBoxColumn
                     {
                         Name = "invoiceNumberColumn",
@@ -241,18 +238,18 @@ namespace BusinessApplicationProject.View
                     DataGridViewOrdersResults.Columns.Add(customerNumberColumn);
                     DataGridViewOrdersResults.Columns.Add(customerFirstNameColumn);
                     DataGridViewOrdersResults.Columns.Add(customerLastNameColumn);
-                    DataGridViewOrdersResults.Columns.Add(invoiceNumberColumn); // ✅ Added Invoice Column
+                    DataGridViewOrdersResults.Columns.Add(invoiceNumberColumn); //  Added Invoice Column
 
-                    // ✅ Now set DataSource with OrderId included
+                    //  Now set DataSource with OrderId included
                     DataGridViewOrdersResults.DataSource = orders.Select(o => new
                     {
-                        OrderId = o.Id,  // ✅ Add Order ID
+                        OrderId = o.Id,  //  Add Order ID
                         o.OrderNumber,
                         o.Date,
                         CustomerNumber = o.CustomerDetails.CustomerNumber,
                         CustomerFirstName = o.CustomerDetails.FirstName,
                         CustomerLastName = o.CustomerDetails.LastName,
-                        InvoiceNumber = o.Invoices.Any() ? o.Invoices.First().InvoiceNumber : "No Invoice" // ✅ Get the first invoice or show "No Invoice"
+                        InvoiceNumber = o.Invoices.Any() ? o.Invoices.First().InvoiceNumber : "No Invoice" //  Get the first invoice or show "No Invoice"
                     }).ToList();
                 }
                 else
@@ -301,14 +298,14 @@ namespace BusinessApplicationProject.View
                 return;
             }
 
-            // ✅ Check if OrderId column exists
+            //  Check if OrderId column exists
             if (!DataGridViewOrdersResults.Columns.Contains("OrderId"))
             {
                 MessageBox.Show("Order ID column not found. Please refresh the data.");
                 return;
             }
 
-            // ✅ Ensure the selected row has a valid OrderId
+            //  Ensure the selected row has a valid OrderId
             object orderIdValue = DataGridViewOrdersResults.SelectedRows[0].Cells["OrderId"].Value;
             if (orderIdValue == null)
             {
@@ -372,29 +369,29 @@ namespace BusinessApplicationProject.View
                     MessageBox.Show("No positions found for this order.");
                 }
 
-                // ✅ Populate order fields (with null-checks)
+                //  Populate order fields (with null-checks)
                 TxtInputOrderNumber.Text = selectedOrder.OrderNumber;
                 TxtInputOrderDate.Text = selectedOrder.Date.ToString("yyyy-MM-dd");
                 TxtInputCustomerNumber.Text = selectedOrder.CustomerDetails?.CustomerNumber ?? "No Customer";
                 TxtInputOrderCustomerFirstName.Text = selectedOrder.CustomerDetails?.FirstName ?? "Unknown";
                 TxtInputOrderCustomerLastName.Text = selectedOrder.CustomerDetails?.LastName ?? "Unknown";
 
-                // ✅ Populate Invoice Number (if available)
+                // Populate Invoice Number (if available)
                 var invoice = context.Invoices.FirstOrDefault(i => i.OrderId == selectedOrder.Id);
                 TxtInputInvoiceNumber.Text = invoice?.InvoiceNumber ?? "No Invoice";
 
-                // ✅ Check if Positions exist before binding
+                // Check if Positions exist before binding
                 if (selectedOrder.Positions != null && selectedOrder.Positions.Any())
                 {
-                    // ✅ Prevent duplicate columns
+                    //  Prevent duplicate columns
                     DataGridViewOrderPositions.DataSource = null;
                     DataGridViewOrderPositions.Columns.Clear();
 
-                    // ✅ Bind Positions to DataGridViewOrderPositions (Fixed)
+                    //  Bind Positions to DataGridViewOrderPositions (Fixed)
                     DataGridViewOrderPositions.DataSource = selectedOrder.Positions
                         .Select(p => new
                         {
-                            PositionNumber = p.PositionNumber,  // ✅ Correctly map PositionNumber
+                            PositionNumber = p.PositionNumber,  //  Correctly map PositionNumber
                             Article = p.ArticleDetails?.ArticleNumber ?? "Unknown",
                             ArticleName = p.ArticleDetails?.Name ?? "Unknown",
                             Quantity = p.Quantity
@@ -409,7 +406,7 @@ namespace BusinessApplicationProject.View
                 }
             }
 
-            //GrpInformationOrder.Visible = true; // ✅ Show the Order Info section
+
         }
 
         private void CmdDeleteSelectedObject_Click(object sender, EventArgs e)
@@ -505,12 +502,12 @@ namespace BusinessApplicationProject.View
         {
             if (WarningDeletedObject())
             {
-                //delete all selected Objects
+
             }
         }
 
 
-        #endregion
+
 
 
 
@@ -572,9 +569,6 @@ namespace BusinessApplicationProject.View
             DataGridViewOrderPositions.DataSource = new BindingList<Position>(_currentOrder.Positions.ToList());
         }
 
-
-
-
         private void CmdAddNewPosition_Click(object sender, EventArgs e)
         {
             GrpInformationSelectedPosition.Visible = true;
@@ -593,7 +587,6 @@ namespace BusinessApplicationProject.View
                 //delete all selected Objects
             }
         }
-
 
         private void CmdSavePositionChanges_Click(object sender, EventArgs e)
         {
@@ -778,3 +771,4 @@ namespace BusinessApplicationProject.View
 
     }
 }
+#endregion

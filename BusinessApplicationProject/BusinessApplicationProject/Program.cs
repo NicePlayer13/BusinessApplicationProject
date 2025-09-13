@@ -1,3 +1,4 @@
+using BusinessApplicationProject.Migrations;
 using BusinessApplicationProject.View;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,9 +20,6 @@ namespace BusinessApplicationProject
                 context.Database.Migrate();
                 DataSeeder.SeedDatabase(context);
             }
-
-            // Beispiel: Controller injizieren
-            // var controller = serviceProvider.GetRequiredService<Controller<Customer>>();
 
             Application.Run(new FormMain());
         }

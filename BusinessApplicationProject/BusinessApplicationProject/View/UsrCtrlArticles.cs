@@ -1,8 +1,11 @@
 ﻿using System.Linq.Expressions;
 using BusinessApplicationProject.Controller;
-using BusinessApplicationProject.Model;
 using BusinessApplicationProject.Repository;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using BusinessApplicationProject.Helpers;
+
 
 namespace BusinessApplicationProject.View
 {
@@ -183,7 +186,7 @@ namespace BusinessApplicationProject.View
             }
         }
 
-        
+
 
         public void UpdateArticles()
         {
@@ -420,7 +423,7 @@ namespace BusinessApplicationProject.View
         }
         #endregion
 
-        private void button6_Click(object sender, EventArgs e)
+        private void CmdSaveNewArticleGroup_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(TxtInputArticleName.Text) ||
                 string.IsNullOrWhiteSpace(TxtInputArticlePrice.Text) ||
@@ -522,7 +525,7 @@ namespace BusinessApplicationProject.View
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void CmdSaveArticleChanges_Click(object sender, EventArgs e)
         {
             if (selectedArticle == null)
             {
@@ -583,45 +586,66 @@ namespace BusinessApplicationProject.View
         }
 
 
-        private void button3_Click(object sender, EventArgs e)
+        private void CmdDeleteGroup_Click(object sender, EventArgs e)
         {
-            if (selectedArticle == null)
+            if (TreeViewArticles.SelectedNode == null)
             {
-                MessageBox.Show("No article is currently selected for deletion.");
+                MessageBox.Show("Bitte wähle eine Artikelgruppe aus.");
                 return;
             }
 
-            if (MessageBox.Show($"Are you sure you want to delete '{selectedArticle.Name}'?",
-                                "Confirm Deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            // Prüfen, ob das selektierte Element eine Gruppe ist
+            if (TreeViewArticles.SelectedNode.Tag is not ArticleGroup selectedGroup)
             {
-                try
+                MessageBox.Show("Bitte wähle eine gültige Artikelgruppe aus (keinen Artikel).");
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                $"Möchtest du die Artikelgruppe '{selectedGroup.Name}' wirklich löschen?\nAlle zugehörigen Artikel werden ebenfalls entfernt!",
+                "Gruppe löschen bestätigen",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (confirm != DialogResult.Yes) return;
+
+            try
+            {
+                using var context = new AppDbContext();
+
+                // Aktuelle Gruppe mit Artikeln laden
+                var group = context.ArticleGroups
+                    .Include(g => g.Articles)
+                    .FirstOrDefault(g => g.Id == selectedGroup.Id);
+
+                if (group == null)
                 {
-                    using var context = new AppDbContext();
-                    var articleToDelete = context.Articles.FirstOrDefault(a => a.Id == selectedArticle.Id);
-                    if (articleToDelete == null)
-                    {
-                        MessageBox.Show("Article not found in database.");
-                        return;
-                    }
-
-                    context.Articles.Remove(articleToDelete);
-                    context.SaveChanges();
-
-                    MessageBox.Show("Article deleted successfully!");
-
-                    // Refresh UI
-                    LoadArticles();
-                    UpdateArticles();
-
-                    // ✅ Clear input fields
-                    ClearArticleFields();
+                    MessageBox.Show("Gruppe wurde nicht in der Datenbank gefunden.");
+                    return;
                 }
-                catch (Exception ex)
+
+                // Erst Artikel löschen (wegen FK)
+                if (group.Articles.Any())
                 {
-                    MessageBox.Show("Error deleting article: " + ex.Message);
+                    context.Articles.RemoveRange(group.Articles);
                 }
+
+                // Dann Gruppe löschen
+                context.ArticleGroups.Remove(group);
+                context.SaveChanges();
+
+                MessageBox.Show("Artikelgruppe erfolgreich gelöscht!");
+
+                // TreeView und Gruppen aktualisieren
+                UpdateArticlesWithGroups();
+                LoadArticleGroups();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler beim Löschen der Gruppe: " + ex.Message);
             }
         }
+
 
         private void ClearArticleFields()
         {
@@ -634,7 +658,7 @@ namespace BusinessApplicationProject.View
         }
 
 
-        private void button1_Click(object sender, EventArgs e)
+        private void CmdSaveNewArticle_Click(object sender, EventArgs e)
         {
             // ✅ Validate input fields
             if (string.IsNullOrWhiteSpace(TxtInputArticleName.Text) ||
@@ -745,9 +769,140 @@ namespace BusinessApplicationProject.View
 
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void CmdExportArticles_Click_Click(object sender, EventArgs e)
         {
+            DateTime exportTime = DtpExportArticlesTime.Value;
 
+            using var context = new AppDbContext();
+
+            var articles = context.Articles
+                .TemporalAsOf(exportTime)
+                .Include(a => a.Group)
+                .ToList();
+
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = "JSON files (*.json)|*.json|XML files (*.xml)|*.xml",
+                Title = "Export Articles as of Time",
+                DefaultExt = "json"
+            };
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string ext = Path.GetExtension(dialog.FileName).ToLowerInvariant();
+                try
+                {
+                    if (ext == ".json")
+                        SerializationHelper.SerializeToJson(articles, dialog.FileName);
+                    else
+                        SerializationHelper.SerializeToXml(articles, dialog.FileName);
+
+                    MessageBox.Show("Temporal export successful!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Export failed: {ex.Message}");
+                }
+            }
         }
+
+
+
+        private void CmdImportArticles_Click_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Filter = "JSON files (*.json)|*.json|XML files (*.xml)|*.xml",
+                Title = "Import Articles",
+                DefaultExt = "json"
+            };
+
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            try
+            {
+                var ext = Path.GetExtension(dialog.FileName).ToLowerInvariant();
+                List<Article> articles;
+
+                if (ext == ".json")
+                    articles = SerializationHelper.DeserializeFromJson<Article>(dialog.FileName);
+                else
+                    articles = SerializationHelper.DeserializeFromXml<Article>(dialog.FileName);
+
+                int imported = 0, updated = 0, failed = 0;
+
+                using var context = new AppDbContext();
+
+                foreach (var a in articles)
+                {
+                    try
+                    {
+                        if (string.IsNullOrWhiteSpace(a.ArticleNumber))
+                            throw new Exception("Article number is missing.");
+
+                        if (string.IsNullOrWhiteSpace(a.Name))
+                            throw new Exception("Article name is missing.");
+
+                        var existing = context.Articles
+                            .Include(x => x.Group)
+                            .FirstOrDefault(x => x.ArticleNumber == a.ArticleNumber);
+
+                        // Try to resolve ArticleGroup if provided
+                        ArticleGroup? group = null;
+                        if (a.Group != null)
+                        {
+                            group = context.ArticleGroups.FirstOrDefault(g => g.Name == a.Group.Name);
+                            if (group == null)
+                            {
+                                // Create missing group if needed
+                                group = new ArticleGroup { Name = a.Group.Name };
+                                context.ArticleGroups.Add(group);
+                                context.SaveChanges(); // Save to get new group Id
+                            }
+                        }
+
+                        if (existing != null)
+                        {
+                            // Update existing
+                            existing.Name = a.Name;
+                            existing.Price = a.Price;
+                            existing.Group = group;
+                            updated++;
+                        }
+                        else
+                        {
+                            // Insert new
+                            var newArticle = new Article
+                            {
+                                ArticleNumber = a.ArticleNumber,
+                                Name = a.Name,
+                                Price = a.Price,
+                                Group = group
+                            };
+                            context.Articles.Add(newArticle);
+                            imported++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        failed++;
+                        MessageBox.Show($"Error importing article '{a.ArticleNumber}': {ex.Message}", "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+
+                context.SaveChanges();
+
+                MessageBox.Show($"Import complete:\n\nNew: {imported}\nUpdated: {updated}\nFailed: {failed}",
+                    "Import Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"General import failed: {ex.Message}", "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
     }
 }
+

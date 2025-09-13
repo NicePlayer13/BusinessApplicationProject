@@ -785,6 +785,5 @@
         private Label LblInfoPositionArticle;
         private ComboBox CmbInputArticle;
         private Label LblGridViewOrdersNoResults;
-        //private TextBox TxtInputOrderCustomerLastName;
     }
 }
