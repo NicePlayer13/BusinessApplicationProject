@@ -6,9 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-/// <summary>
-/// Snapshot of the current model for the AppDbContext.
-///     
+#nullable disable
 
 namespace BusinessApplicationProject.Migrations
 {
@@ -17,13 +15,14 @@ namespace BusinessApplicationProject.Migrations
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
+#pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Address", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,7 +72,7 @@ namespace BusinessApplicationProject.Migrations
                             }));
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Article", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Article", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -123,7 +122,7 @@ namespace BusinessApplicationProject.Migrations
                             }));
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.ArticleGroup", b =>
+            modelBuilder.Entity("BusinessApplicationProject.ArticleGroup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -145,7 +144,7 @@ namespace BusinessApplicationProject.Migrations
                     b.ToTable("ArticleGroups");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Customer", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Customer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -212,7 +211,7 @@ namespace BusinessApplicationProject.Migrations
                             }));
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Invoice", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Invoice", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -261,7 +260,7 @@ namespace BusinessApplicationProject.Migrations
                     b.ToTable("Invoices");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Order", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Order", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -286,7 +285,7 @@ namespace BusinessApplicationProject.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Position", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Position", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -315,9 +314,9 @@ namespace BusinessApplicationProject.Migrations
                     b.ToTable("Positions");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Article", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Article", b =>
                 {
-                    b.HasOne("BusinessApplicationProject.Model.ArticleGroup", "Group")
+                    b.HasOne("BusinessApplicationProject.ArticleGroup", "Group")
                         .WithMany("Articles")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -325,18 +324,18 @@ namespace BusinessApplicationProject.Migrations
                     b.Navigation("Group");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.ArticleGroup", b =>
+            modelBuilder.Entity("BusinessApplicationProject.ArticleGroup", b =>
                 {
-                    b.HasOne("BusinessApplicationProject.Model.ArticleGroup", "Parent")
+                    b.HasOne("BusinessApplicationProject.ArticleGroup", "Parent")
                         .WithMany()
                         .HasForeignKey("ParentId");
 
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Customer", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Customer", b =>
                 {
-                    b.HasOne("BusinessApplicationProject.Model.Address", "CustomerAddress")
+                    b.HasOne("BusinessApplicationProject.Address", "CustomerAddress")
                         .WithMany()
                         .HasForeignKey("CustomerAddressId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -345,21 +344,21 @@ namespace BusinessApplicationProject.Migrations
                     b.Navigation("CustomerAddress");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Invoice", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Invoice", b =>
                 {
-                    b.HasOne("BusinessApplicationProject.Model.Address", "BillingAddress")
+                    b.HasOne("BusinessApplicationProject.Address", "BillingAddress")
                         .WithMany()
                         .HasForeignKey("BillingAddressId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("BusinessApplicationProject.Model.Order", "OrderInformations")
+                    b.HasOne("BusinessApplicationProject.Order", "OrderInformations")
                         .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("BusinessApplicationProject.Model.Order", null)
+                    b.HasOne("BusinessApplicationProject.Order", null)
                         .WithMany("Invoices")
                         .HasForeignKey("OrderId1");
 
@@ -368,9 +367,9 @@ namespace BusinessApplicationProject.Migrations
                     b.Navigation("OrderInformations");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Order", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Order", b =>
                 {
-                    b.HasOne("BusinessApplicationProject.Model.Customer", "CustomerDetails")
+                    b.HasOne("BusinessApplicationProject.Customer", "CustomerDetails")
                         .WithMany()
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -379,15 +378,15 @@ namespace BusinessApplicationProject.Migrations
                     b.Navigation("CustomerDetails");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Position", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Position", b =>
                 {
-                    b.HasOne("BusinessApplicationProject.Model.Article", "ArticleDetails")
+                    b.HasOne("BusinessApplicationProject.Article", "ArticleDetails")
                         .WithMany()
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BusinessApplicationProject.Model.Order", "OrderDetails")
+                    b.HasOne("BusinessApplicationProject.Order", "OrderDetails")
                         .WithMany("Positions")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -398,17 +397,18 @@ namespace BusinessApplicationProject.Migrations
                     b.Navigation("OrderDetails");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.ArticleGroup", b =>
+            modelBuilder.Entity("BusinessApplicationProject.ArticleGroup", b =>
                 {
                     b.Navigation("Articles");
                 });
 
-            modelBuilder.Entity("BusinessApplicationProject.Model.Order", b =>
+            modelBuilder.Entity("BusinessApplicationProject.Order", b =>
                 {
                     b.Navigation("Invoices");
 
                     b.Navigation("Positions");
                 });
+#pragma warning restore 612, 618
         }
     }
 }

@@ -61,11 +61,18 @@ namespace BusinessApplicationProject.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomerNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CustomerAddressId = table.Column<int>(type: "int", nullable: false)
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Website = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerAddressId = table.Column<int>(type: "int", nullable: false),
+                    PeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:TemporalIsPeriodEndColumn", true),
+                    PeriodStart = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:TemporalIsPeriodStartColumn", true)
                 },
                 constraints: table =>
                 {
@@ -76,7 +83,12 @@ namespace BusinessApplicationProject.Migrations
                         principalTable: "Addresses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("SqlServer:IsTemporal", true)
+                .Annotation("SqlServer:TemporalHistoryTableName", "CustomersHistory")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
 
             migrationBuilder.CreateTable(
                 name: "Articles",
@@ -100,7 +112,8 @@ namespace BusinessApplicationProject.Migrations
                         name: "FK_Articles_ArticleGroups_GroupId",
                         column: x => x.GroupId,
                         principalTable: "ArticleGroups",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("SqlServer:IsTemporal", true)
                 .Annotation("SqlServer:TemporalHistoryTableName", "ArticlesHistory")
@@ -126,7 +139,7 @@ namespace BusinessApplicationProject.Migrations
                         column: x => x.CustomerId,
                         principalTable: "Customers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -142,7 +155,8 @@ namespace BusinessApplicationProject.Migrations
                     TaxPercentage = table.Column<double>(type: "float", nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PaymentStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OrderId = table.Column<int>(type: "int", nullable: false)
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    OrderId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -159,6 +173,11 @@ namespace BusinessApplicationProject.Migrations
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Invoices_Orders_OrderId1",
+                        column: x => x.OrderId1,
+                        principalTable: "Orders",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -205,6 +224,12 @@ namespace BusinessApplicationProject.Migrations
                 column: "CustomerAddressId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Customers_CustomerNumber",
+                table: "Customers",
+                column: "CustomerNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Invoices_BillingAddressId",
                 table: "Invoices",
                 column: "BillingAddressId");
@@ -213,6 +238,11 @@ namespace BusinessApplicationProject.Migrations
                 name: "IX_Invoices_OrderId",
                 table: "Invoices",
                 column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Invoices_OrderId1",
+                table: "Invoices",
+                column: "OrderId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_CustomerId",
@@ -254,7 +284,12 @@ namespace BusinessApplicationProject.Migrations
                 name: "ArticleGroups");
 
             migrationBuilder.DropTable(
-                name: "Customers");
+                name: "Customers")
+                .Annotation("SqlServer:IsTemporal", true)
+                .Annotation("SqlServer:TemporalHistoryTableName", "CustomersHistory")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
 
             migrationBuilder.DropTable(
                 name: "Addresses")
