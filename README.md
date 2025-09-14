@@ -21,7 +21,7 @@ Bevor du das Projekt startest, stelle sicher, dass du folgende Tools installiert
 
 ---
 
-## 🏗️ Projekt einrichten
+## 🏠 Projekt einrichten
 
 ### 🔹 1️⃣ Repository klonen
 Öffne ein Terminal (PowerShell oder CMD) und klone das Projekt:
@@ -65,11 +65,45 @@ Falls `dotnet ef` nicht gefunden wird, installiere das Entity Framework CLI-Tool
 dotnet tool install --global dotnet-ef
 ```
 
+Falls es danach immer noch nicht funktioniert:
+```sh
+dotnet tool restore
+```
+Oder lokal im Projekt:
+```sh
+dotnet new tool-manifest
+dotnet tool install dotnet-ef
+dotnet tool restore
+```
+
+### 🔄 Datenbank und Migrationen komplett zurücksetzen (wenn Probleme auftreten)
+
+Falls du eine Migration erstellt hast, aber `Up()` oder `Down()` sind leer oder du bekommst Fehler wie `invalid column`:
+```sh
+dotnet ef database drop --force
+dotnet ef migrations remove
+```
+Dann eine neue Migration sauber erstellen:
+```sh
+dotnet ef migrations add InitialCreate
+```
+Und direkt anwenden:
+```sh
+dotnet ef database update
+```
+
+### 📉 Sicherstellen: SQL Server LocalDB ist installiert
+Prüfen ob LocalDB verfügbar ist:
+```sh
+sqllocaldb info
+```
+Du solltest `MSSQLLocalDB` oder ähnliche Instanzen sehen. Falls nicht, installiere Visual Studio mit "SQL Server Data Tools" oder lade [LocalDB manuell herunter](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb).
+
 ---
 
 ## 🏁 Anwendung starten
 1. **Öffne das Projekt in Visual Studio**
-2. **Setze `FormMain` als Startprojekt** (Falls es eine Hauptform gibt)
+2. **Setze `FormMain` als Startprojekt**
 3. **Starte die Anwendung über `F5` oder `dotnet run`**
 
 ---
@@ -79,12 +113,16 @@ dotnet tool install --global dotnet-ef
 ### ❌ **Fehlermeldung: "dotnet ef" nicht gefunden**
 👉 **Lösung:**
 ```sh
+dotnet tool restore
+```
+Oder:
+```sh
 dotnet tool install --global dotnet-ef
 ```
 
 ### ❌ **Fehlermeldung: "Invalid column name 'CustomerAddressId'"**
 👉 **Lösung:**  
-1. Prüfe, ob die Spalte `CustomerAddressId` in der Tabelle **Customers** existiert.
+1. Prüfe, ob die Spalte `CustomerAddressId` in der Tabelle **Customers** existiert.  
 2. Falls nicht, führe eine neue Migration durch:
 ```sh
 dotnet ef migrations add FixCustomerAddress
@@ -94,7 +132,7 @@ dotnet ef database update
 ### ❌ **Fehlermeldung: "Cannot drop database because it is currently in use"**
 👉 **Lösung:**  
 Beende alle aktiven SQL-Verbindungen:
-```sh
+```sql
 USE master;
 ALTER DATABASE BusinessApplicationProjectDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 DROP DATABASE BusinessApplicationProjectDB;
@@ -103,6 +141,7 @@ Dann erstelle die Datenbank erneut:
 ```sh
 dotnet ef database update
 ```
+
 ---
 
 ## 🧱 Projektstruktur (Architektur)
@@ -113,7 +152,6 @@ dotnet ef database update
 - `Validation/` – Eingabeprüfungen mit Regex
 - `temporaryFiles/` – Hilfsklassen wie `Utils.cs`
 
-
 ---
 
 ## 📜 Lizenz
@@ -122,7 +160,7 @@ Da es sich um ein Schulprojekt handelt, unterliegt dieses Projekt keiner spezifi
 ---
 
 ## 📩 Kontakt & Support
-📧 **Entwickler:** Khabat Rammo / Maximilian Degen
+📧 **Entwickler:** Khabat Rammo / Maximilian Degen  
 🔗 **GitHub:** [github.com/NicePlayer13](https://github.com/NicePlayer13)
 
 ---
