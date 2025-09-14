@@ -37,7 +37,8 @@
                 CustomerAddress = addr1,
                 FirstName = "John",
                 LastName = "Smith",
-                Email = "js@gmail.com"
+                Email = "js@gmail.com",
+                PasswordHash = ""
             };
 
             var cust2 = new Customer()
@@ -47,7 +48,8 @@
                 CustomerAddress = addr2,
                 FirstName = "John",
                 LastName = "Wayne",
-                Email = "jw@gmail.com"
+                Email = "jw@gmail.com",
+                PasswordHash = ""
             };
 
             context.Customers.AddRange(cust1, cust2);
