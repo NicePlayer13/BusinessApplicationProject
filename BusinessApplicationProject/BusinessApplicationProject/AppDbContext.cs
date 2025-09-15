@@ -101,6 +101,7 @@ namespace BusinessApplicationProject
             modelBuilder.Entity<Address>().ToTable(nameof(Addresses), b => b.IsTemporal());
             modelBuilder.Entity<Article>().ToTable(nameof(Articles), b => b.IsTemporal());
             modelBuilder.Entity<Customer>().ToTable(nameof(Customers), b => b.IsTemporal());
+            modelBuilder.Entity<ArticleGroup>().ToTable(nameof(ArticleGroups), b => b.IsTemporal());
         }
     }
 }

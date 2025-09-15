@@ -552,15 +552,13 @@ namespace BusinessApplicationProject.View
                     return;
                 }
 
-                var selectedGroup = context.ArticleGroups.Local
-                    .FirstOrDefault(g => g.Name == CmbInputArticleGroup.SelectedItem.ToString())
-                    ?? context.ArticleGroups.AsNoTracking().FirstOrDefault(g => g.Name == CmbInputArticleGroup.SelectedItem.ToString());
-
+                var selectedGroup = CmbInputArticleGroup.SelectedItem as ArticleGroup;
                 if (selectedGroup == null)
                 {
                     MessageBox.Show("Invalid article group selection.");
                     return;
                 }
+
 
                 // Update article properties
                 articleToUpdate.Name = TxtInputArticleName.Text;
