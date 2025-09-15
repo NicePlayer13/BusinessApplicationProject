@@ -17,7 +17,7 @@ namespace BusinessApplicationProject
         public required double Price { get; set; }
 
 
-        public int? GroupId { get; set; }
+        public int GroupId { get; set; }
         [ForeignKey(nameof(GroupId))]
         public ArticleGroup? Group { get; set; }
     }
