@@ -46,7 +46,6 @@
             LblInfoSearchArticleName = new Label();
             LblInfoSearchArticleGroup = new Label();
             GrpInformationArticleGroup = new GroupBox();
-            button5 = new Button();
             TxtInputArticleGroupName = new TextBox();
             GrpInformationArticleGroupName = new Label();
             GrpInformationArticleGroupParent = new Label();
@@ -229,7 +228,6 @@
             // 
             // GrpInformationArticleGroup
             // 
-            GrpInformationArticleGroup.Controls.Add(button5);
             GrpInformationArticleGroup.Controls.Add(TxtInputArticleGroupName);
             GrpInformationArticleGroup.Controls.Add(GrpInformationArticleGroupName);
             GrpInformationArticleGroup.Controls.Add(GrpInformationArticleGroupParent);
@@ -242,13 +240,6 @@
             GrpInformationArticleGroup.TabIndex = 3;
             GrpInformationArticleGroup.TabStop = false;
             GrpInformationArticleGroup.Text = "Information selected Article Group";
-            // 
-            // button5
-            // 
-            button5.Location = new Point(0, 0);
-            button5.Name = "button5";
-            button5.Size = new Size(75, 23);
-            button5.TabIndex = 0;
             // 
             // TxtInputArticleGroupName
             // 
@@ -279,24 +270,22 @@
             GrpInformationArticleGroupParent.Text = "Group Parent";
             // 
             // CmdDeleteGroup
-            //// 
-            //CmdDeleteGroup.Location = new Point(412, 89);
-            //CmdDeleteGroup.Name = "CmdDeleteGroup";
-            //CmdDeleteGroup.Size = new Size(110, 23);
-            //CmdDeleteGroup.TabIndex = 0;
-            //CmdDeleteGroup.Text = "Delete Group";
-            //CmdDeleteGroup.UseVisualStyleBackColor = true;
-            //CmdDeleteGroup.Click += button4_Click;
-            //// 
+            // 
+            CmdDeleteGroup.Location = new Point(412, 94);
+            CmdDeleteGroup.Name = "CmdDeleteGroup";
+            CmdDeleteGroup.Size = new Size(110, 23);
+            CmdDeleteGroup.TabIndex = 3;
+            CmdDeleteGroup.Text = "Delete Group";
+            CmdDeleteGroup.Click += CmdDeleteGroup_Click;
+            // 
             // CmdSaveNewArticleGroup
             // 
-            //CmdSaveNewArticleGroup.Location = new Point(6, 89);
-            //CmdSaveNewArticleGroup.Name = "CmdSaveNewArticleGroup";
-            //CmdSaveNewArticleGroup.Size = new Size(156, 23);
-            //CmdSaveNewArticleGroup.TabIndex = 0;
-            //CmdSaveNewArticleGroup.Text = "Save as new Article Group";
-            //CmdSaveNewArticleGroup.UseVisualStyleBackColor = true;
-            //CmdSaveNewArticleGroup.Click += button6_Click;
+            CmdSaveNewArticleGroup.Location = new Point(6, 94);
+            CmdSaveNewArticleGroup.Name = "CmdSaveNewArticleGroup";
+            CmdSaveNewArticleGroup.Size = new Size(156, 23);
+            CmdSaveNewArticleGroup.TabIndex = 4;
+            CmdSaveNewArticleGroup.Text = "Save as new Article Group";
+            CmdSaveNewArticleGroup.Click += CmdSaveNewArticleGroup_Click;
             // 
             // CmbInputArticleGroupParent
             // 
@@ -398,15 +387,15 @@
             LblInfoArticleGroup.Text = "Article Group";
             // 
             // CmdDeleteArticle
-            //// 
+            // 
             CmdDeleteArticle.Location = new Point(412, 89);
             CmdDeleteArticle.Name = "CmdDeleteArticle";
             CmdDeleteArticle.Size = new Size(110, 23);
             CmdDeleteArticle.TabIndex = 0;
             CmdDeleteArticle.Text = "Delete Article";
             CmdDeleteArticle.UseVisualStyleBackColor = true;
-            CmdDeleteArticle.Click += CmdDeleteGroup_Click;
-            //// 
+            CmdDeleteArticle.Click += CmdDeleteSelectedObjects_Click;
+            // 
             // button2
             // 
             button2.Location = new Point(307, 89);
@@ -416,9 +405,9 @@
             button2.Text = "Save changes";
             button2.UseVisualStyleBackColor = true;
             button2.Click += CmdSaveArticleChanges_Click;
-            //// 
-            //// button1
-            //// 
+            // 
+            // button1
+            // 
             button1.Location = new Point(6, 89);
             button1.Name = "button1";
             button1.Size = new Size(156, 23);
@@ -525,7 +514,6 @@
         private ComboBox CmbInputArticleGroup;
         private ComboBox CmbSearchArticleGroup;
         private Label LblSearchArticlesNoResult;
-        private Button button5;
         private Button CmdImportArticles;
         private Button CmdExportArticles;
         private DateTimePicker DtpExportArticlesTime;
