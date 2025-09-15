@@ -590,20 +590,20 @@ namespace BusinessApplicationProject.View
         {
             if (TreeViewArticles.SelectedNode == null)
             {
-                MessageBox.Show("Bitte wähle eine Artikelgruppe aus.");
+                MessageBox.Show("Please select an article group.");
                 return;
             }
 
             // Prüfen, ob das selektierte Element eine Gruppe ist
             if (TreeViewArticles.SelectedNode.Tag is not ArticleGroup selectedGroup)
             {
-                MessageBox.Show("Bitte wähle eine gültige Artikelgruppe aus (keinen Artikel).");
+                MessageBox.Show("Please select a valid article group (not an article).");
                 return;
             }
 
             var confirm = MessageBox.Show(
-                $"Möchtest du die Artikelgruppe '{selectedGroup.Name}' wirklich löschen?\nAlle zugehörigen Artikel werden ebenfalls entfernt!",
-                "Gruppe löschen bestätigen",
+                $"Do you really want to delete the article group '{selectedGroup.Name}'?\nAll associated articles will also be removed!",
+                "Confirm delete group",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
@@ -620,7 +620,7 @@ namespace BusinessApplicationProject.View
 
                 if (group == null)
                 {
-                    MessageBox.Show("Gruppe wurde nicht in der Datenbank gefunden.");
+                    MessageBox.Show("Group was not found in the database.");
                     return;
                 }
 
@@ -634,7 +634,7 @@ namespace BusinessApplicationProject.View
                 context.ArticleGroups.Remove(group);
                 context.SaveChanges();
 
-                MessageBox.Show("Artikelgruppe erfolgreich gelöscht!");
+                MessageBox.Show("Article group deleted successfully!");
 
                 // TreeView und Gruppen aktualisieren
                 UpdateArticlesWithGroups();
@@ -642,7 +642,7 @@ namespace BusinessApplicationProject.View
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Fehler beim Löschen der Gruppe: " + ex.Message);
+                MessageBox.Show("Error deleting group: " + ex.Message);
             }
         }
 
@@ -776,7 +776,7 @@ namespace BusinessApplicationProject.View
             using var context = new AppDbContext();
 
             var articles = context.Articles
-                .TemporalAsOf(exportTime)
+                //.TemporalAsOf(exportTime)
                 .Include(a => a.Group)
                 .ToList();
 

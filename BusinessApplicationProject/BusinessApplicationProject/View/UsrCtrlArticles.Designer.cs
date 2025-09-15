@@ -276,6 +276,7 @@
             CmdDeleteGroup.Size = new Size(110, 23);
             CmdDeleteGroup.TabIndex = 3;
             CmdDeleteGroup.Text = "Delete Group";
+            CmdDeleteGroup.Click += CmdDeleteGroup_Click;
             // 
             // CmdSaveNewArticleGroup
             // 
@@ -393,7 +394,7 @@
             CmdDeleteArticle.TabIndex = 0;
             CmdDeleteArticle.Text = "Delete Article";
             CmdDeleteArticle.UseVisualStyleBackColor = true;
-            CmdDeleteArticle.Click += CmdDeleteGroup_Click;
+            CmdDeleteArticle.Click += CmdDeleteSelectedObjects_Click;
             // 
             // button2
             // 
