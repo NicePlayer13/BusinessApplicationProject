@@ -84,7 +84,7 @@ namespace BusinessApplicationProject.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("GroupId")
+                    b.Property<int>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -340,7 +340,8 @@ namespace BusinessApplicationProject.Migrations
                     b.HasOne("BusinessApplicationProject.ArticleGroup", "Group")
                         .WithMany("Articles")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Group");
                 });

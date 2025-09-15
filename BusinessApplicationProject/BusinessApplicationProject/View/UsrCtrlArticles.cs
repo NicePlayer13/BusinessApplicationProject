@@ -1,10 +1,7 @@
 ﻿using System.Linq.Expressions;
 using BusinessApplicationProject.Controller;
-using BusinessApplicationProject.Repository;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using BusinessApplicationProject.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace BusinessApplicationProject.View
@@ -774,9 +771,21 @@ namespace BusinessApplicationProject.View
             using var context = new AppDbContext();
 
             var articles = context.Articles
-                .TemporalAsOf(exportTime)
-                .Include(a => a.Group)
-                .ToList();
+            .TemporalAsOf(exportTime)
+            .AsNoTracking()
+            .ToList();
+
+            var groupIds = articles.Select(a => a.GroupId).Distinct().ToList();
+            var groups = context.ArticleGroups
+            .Where(g => groupIds.Contains(g.Id))
+            .ToDictionary(g => g.Id);
+            foreach (var article in articles)
+            {
+                if (groups.TryGetValue(article.GroupId, out var group))
+                {
+                    article.Group = group;
+                }
+            }
 
             SaveFileDialog dialog = new SaveFileDialog
             {
@@ -842,27 +851,28 @@ namespace BusinessApplicationProject.View
                         if (string.IsNullOrWhiteSpace(a.Name))
                             throw new Exception("Article name is missing.");
 
-                        var existing = context.Articles
-                            .Include(x => x.Group)
-                            .FirstOrDefault(x => x.ArticleNumber == a.ArticleNumber);
-
-                        // Try to resolve ArticleGroup if provided
+                        // Resolve or create ArticleGroup
                         ArticleGroup? group = null;
-                        if (a.Group != null)
+                        if (a.Group != null && !string.IsNullOrWhiteSpace(a.Group.Name))
                         {
                             group = context.ArticleGroups.FirstOrDefault(g => g.Name == a.Group.Name);
                             if (group == null)
                             {
-                                // Create missing group if needed
                                 group = new ArticleGroup { Name = a.Group.Name };
                                 context.ArticleGroups.Add(group);
-                                context.SaveChanges(); // Save to get new group Id
+                                context.SaveChanges(); // Needed to get new group ID
                             }
                         }
+                        else if (a.GroupId != 0)
+                        {
+                            group = context.ArticleGroups.FirstOrDefault(g => g.Id == a.GroupId);
+                        }
+
+                        // Try to find existing article
+                        var existing = context.Articles.FirstOrDefault(x => x.ArticleNumber == a.ArticleNumber);
 
                         if (existing != null)
                         {
-                            // Update existing
                             existing.Name = a.Name;
                             existing.Price = a.Price;
                             existing.Group = group;
@@ -870,7 +880,6 @@ namespace BusinessApplicationProject.View
                         }
                         else
                         {
-                            // Insert new
                             var newArticle = new Article
                             {
                                 ArticleNumber = a.ArticleNumber,
